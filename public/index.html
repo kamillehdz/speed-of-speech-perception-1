@@ -182,24 +182,12 @@
         playbackSpeed: speed,
         videoTime: time
       };
-
-      fetch('https://speed-of-speech-perception.onrender.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(() => {
-        emailjs.send('service_speed_perception', 'template_60hcc4f', {
-          participant_id: participantId,
-          trial_number: trialNumber,
-          playback_speed: speed,
-          video_time: time
-        }).then(response => {
-          console.log('Email sent successfully', response.status, response.text);
-        }).catch(error => {
-          console.error('Email failed to send', error);
-        });
-      }).catch(error => {
-        console.error("Failed to send to backend", error);
+      emailjs.send('service_speed_perception', 'template_60hcc4f', payload)
+      .then(response => {
+        console.log('Email sent successfully', response.status, response.text);
+      })
+      .catch(error => {
+        console.error('Email failed to send', error);
       });
     }
 
