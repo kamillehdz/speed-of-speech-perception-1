@@ -11,7 +11,7 @@ app.post('/submit', async (req, res) => {
   const data = req.body;
   const log = `${new Date().toISOString()} - Participant: ${data.participantId}, Trial: ${data.trial}, Speed: ${data.playbackSpeed}, Time: ${data.videoTime}\n`;
 
-  // 1. Save to file (same as before)
+  // Save to file
   fs.appendFile('speed-data.txt', log, (err) => {
     if (err) {
       console.error('Error saving data:', err);
@@ -20,7 +20,7 @@ app.post('/submit', async (req, res) => {
     }
   });
 
-  // 2. Send email to myself with EmailJS 
+  // Send email using EmailJS
   try {
     const response = await emailjs.send(
       'service_speed_perception',
@@ -38,14 +38,14 @@ app.post('/submit', async (req, res) => {
       }
     );
 
-    console.log('Email sent:', response);
-    res.sendStatus(200);
+    console.log('Email sent successfully:', response);
+    res.status(200).send('Data and email sent');
   } catch (error) {
-    console.error('Email failed:', error);
+    console.error('Email send failed:', error);
     res.status(500).send('Failed to send email');
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`🚀 Server running at http://localhost:${port}`);
 });
