@@ -1,198 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Speed of Speech Perception</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-      background-color: #a9c2ce;
-      color: #222;
-      margin: 0;
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 { margin-top: 20px; }
-    video, audio {
-      width: 800px;
-      max-width: 100%;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .controls {
-      margin-top: 25px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.1rem;
-    }
-    input[type='range'] {
-      -webkit-appearance: none;
-      width: 250px;
-      height: 6px;
-      background: #ddd;
-      border-radius: 5px;
-      outline: none;
-    }
-    input[type='range']::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #79b8fb;
-    }
-    button {
-      padding: 6px 12px;
-      font-size: 1rem;
-      background-color: #0056b3;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #79b8fb;
-      color: black;
-    }
-    #speedDisplay { min-width: 50px; }
-  </style>
-</head>
-<body>
-  <div id="introScreen">
-    <h2 style="text-align: center; margin-bottom: 30px;"><strong>Welcome to the experiment.</strong></h2>
-    <p>This experiment is designed to test your ability to comprehend speech at different playback speeds.</p>
-    <p>When you are ready, press play on the video or audio clip.</p>
-    <p>You can adjust the playback speed using the <strong>+</strong> and <strong>-</strong> or by using the slider beneath the video.</p>
-    <p>Once you can no longer understand the speech, stop the speech and click <strong>Next</strong>. Your final playback speed will automatically be recorded.</p>
-    <p>The next clip will begin at the same speed you ended in the previous trial.</p>
-    <p>You may continue adjusting the speed as needed.</p>
-    <p>Use <strong>Reset</strong> to return the playback speed to 1.0x.</p>
-    <p style="text-align: center; margin-top: 30px;"><em>Press any key to begin.</em></p>
-  </div>
+function sendTrialData(trialNumber, speed, time) {
+  const participantId = localStorage.getItem('participantId');
+  const payload = {
+    participantId,
+    trial: trialNumber,
+    playbackSpeed: speed,
+    videoTime: time
+  };
 
-  <div id="trialContainer" style="display: none;">
-    <h1>Trial <span id="trialNumber">1</span></h1>
-    <div id="mediaContainer"></div>
-
-    <div class="controls">
-      <label for="speedSlider">Playback Speed:</label>
-      <button id="decreaseSpeedBtn">-</button>
-      <input id="speedSlider" type="range" min="0.10" max="4.0" step="0.10" value="1.0">
-      <button id="increaseSpeedBtn">+</button>
-      <span id="speedDisplay">1.00x</span>
-      <button id="resetBtn">Reset Speed</button>
-    </div>
-
-    <button id="nextBtn" style="margin-top: 50px;">Click once you reach your max speed.</button>
-  </div>
-
-  <div id="thankYouMessage" style="display: none; text-align: center; margin-top: 60px;">
-    <h2>Thank you for participating!</h2>
-    <p>You may now close this tab.</p>
-  </div>
-
-  <script>
-    const totalTrials = 10;
-    let currentTrial = 1;
-    let lastSpeed = 1.0;
-    let lastTime = 0;
-
-    const introScreen = document.getElementById("introScreen");
-    const trialContainer = document.getElementById("trialContainer");
-    const thankYouMessage = document.getElementById("thankYouMessage");
-    const trialNumber = document.getElementById("trialNumber");
-    const mediaContainer = document.getElementById("mediaContainer");
-    const nextBtn = document.getElementById("nextBtn");
-    const speedSlider = document.getElementById("speedSlider");
-    const speedDisplay = document.getElementById("speedDisplay");
-    const resetBtn = document.getElementById("resetBtn");
-    const increaseBtn = document.getElementById("increaseSpeedBtn");
-    const decreaseBtn = document.getElementById("decreaseSpeedBtn");
-
-    let mediaEl;
-
-    if (!localStorage.getItem('participantId')) {
-      localStorage.setItem('participantId', crypto.randomUUID());
-    }
-
-    document.addEventListener("keydown", () => {
-      introScreen.style.display = "none";
-      trialContainer.style.display = "block";
-      currentTrial = 1;
-      lastSpeed = 1.0;
-      lastTime = 0;
-      loadTrial();
-    }, { once: true });
-
-    function loadTrial() {
-      trialNumber.textContent = currentTrial;
-      mediaContainer.innerHTML = "";
-
-      const isVideo = currentTrial % 2 === 1;
-      mediaEl = document.createElement(isVideo ? "video" : "audio");
-      mediaEl.src = isVideo ? "video.mp4" : "audio.mp3";
-      mediaEl.controls = true;
-      mediaEl.autoplay = true;
-
-      const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
-      const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
-
-      mediaEl.playbackRate = speed;
-      mediaEl.addEventListener("loadedmetadata", () => {
-        mediaEl.currentTime = time;
-        mediaEl.play();
-      });
-
-      mediaContainer.appendChild(mediaEl);
-      updateSpeedDisplay(speed);
-    }
-
-    function updateSpeedDisplay(speed) {
-      speed = Math.max(0.10, Math.min(speed, 4.0));
-      if (mediaEl) mediaEl.playbackRate = speed;
-      speedSlider.value = speed;
-      speedDisplay.textContent = speed.toFixed(2) + "x";
-    }
-
-    speedSlider.addEventListener("input", () => updateSpeedDisplay(parseFloat(speedSlider.value)));
-    resetBtn.addEventListener("click", () => updateSpeedDisplay(1.0));
-    increaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) + 0.10));
-    decreaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) - 0.10));
-
-    function sendTrialData(trialNumber, speed, time) {
-      fetch('https://speed-of-speech-perception.onrender.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          participantId: localStorage.getItem('participantId'),
-          trial: trialNumber,
-          playbackSpeed: speed,
-          videoTime: time
-        })
-      }).catch(err => console.error("Data send error:", err));
-    }
-
-    nextBtn.addEventListener("click", () => {
-      const speed = mediaEl.playbackRate;
-      const time = mediaEl.currentTime;
-
-      sendTrialData(currentTrial, speed, time);
-      localStorage.setItem("lastSpeed", speed);
-      localStorage.setItem("lastTime", time);
-
-      currentTrial++;
-      if (currentTrial > totalTrials) {
-        if (mediaEl) mediaEl.pause();
-        trialContainer.style.display = "none";
-        thankYouMessage.style.display = "block";
-      } else {
-        loadTrial();
-      }
+  // Send to your Node.js backend
+  fetch('https://speed-of-speech-perception.onrender.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    // After backend save, send email
+    emailjs.send('service_speed_perception', 'template_60hcc4f', {
+      participant_id: participantId,
+      trial_number: trialNumber,
+      playback_speed: speed,
+      video_time: time
+    }).then(response => {
+      console.log('Email sent successfully', response.status, response.text);
+    }).catch(error => {
+      console.error('Email failed to send', error);
     });
-  </script>
-</body>
-</html>
+  }).catch(error => {
+    console.error("Failed to send to backend", error);
+  });
+}
