@@ -1,25 +1,51 @@
 const express = require('express');
 const fs = require('fs');
+const emailjs = require('@emailjs/nodejs');
 const app = express();
 const port = 3000;
 
 app.use(express.static('public'));
 app.use(express.json());
 
-app.post('/submit', (req, res) => {
+app.post('/submit', async (req, res) => {
   const data = req.body;
   const log = `${new Date().toISOString()} - Participant: ${data.participantId}, Trial: ${data.trial}, Speed: ${data.playbackSpeed}, Time: ${data.videoTime}\n`;
 
+  // 1. Save to file (same as before)
   fs.appendFile('speed-data.txt', log, (err) => {
     if (err) {
       console.error('Error saving data:', err);
-      return res.status(500).send('Failed to save data');
+    } else {
+      console.log('Saved to file:', log);
     }
-    console.log('Saved:', log);
-    res.sendStatus(200);
   });
+
+  // 2. Send email to myself with EmailJS 
+  try {
+    const response = await emailjs.send(
+      'service_speed_perception',
+      'template_60hcc4f',
+      {
+        participant_id: data.participantId,
+        trial_number: data.trial,
+        playback_speed: data.playbackSpeed,
+        video_time: data.videoTime,
+        message_log: log
+      },
+      {
+        publicKey: 'GLwC-Me-PN-n4W2OL',
+        privateKey: 'f7ekh226Lqs-D8DcctJ7R'
+      }
+    );
+
+    console.log('Email sent:', response);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Email failed:', error);
+    res.status(500).send('Failed to send email');
+  }
 });
 
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
