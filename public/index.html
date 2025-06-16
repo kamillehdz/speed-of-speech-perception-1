@@ -144,7 +144,6 @@
       mediaEl.src = isVideo ? "video.mp4" : "audio.mp3";
       mediaEl.controls = true;
       mediaEl.autoplay = true;
-      mediaEl.muted = !isVideo; // Allow autoplay for audio
 
       const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
       const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
