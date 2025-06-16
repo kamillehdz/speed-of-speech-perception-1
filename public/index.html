@@ -177,10 +177,10 @@
     function sendTrialData(trialNumber, speed, time) {
       const participantId = localStorage.getItem('participantId');
       const payload = {
-        participantId,
-        trial: trialNumber,
-        playbackSpeed: speed,
-        videoTime: time
+        participant_id: participantId,
+        trial_number: trialNumber,
+        playback_speed: speed,
+        video_time: time
       };
       emailjs.send('service_speed_perception', 'template_60hcc4f', payload)
       .then(response => {
