@@ -96,11 +96,11 @@
   </div>
 
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-<script>
-  (function() {
-    emailjs.init("GLwC-Me-PN-n4W2OL"); 
-  })();
-</script>
+  <script>
+    (function() {
+      emailjs.init("GLwC-Me-PN-n4W2OL"); 
+    })();
+  </script>
 
   <script>
     const totalTrials = 10;
@@ -144,14 +144,19 @@
       mediaEl.src = isVideo ? "video.mp4" : "audio.mp3";
       mediaEl.controls = true;
       mediaEl.autoplay = true;
+      mediaEl.muted = !isVideo; // Allow autoplay for audio
 
       const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
       const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
 
       mediaEl.playbackRate = speed;
       mediaEl.addEventListener("loadedmetadata", () => {
-        mediaEl.currentTime = time;
-        mediaEl.play();
+        try {
+          mediaEl.currentTime = Math.max(0, time - 0.5); // buffer back slightly
+          mediaEl.play().catch(e => console.warn("Autoplay failed:", e));
+        } catch (e) {
+          console.error("Error setting time or playing:", e);
+        }
       });
 
       mediaContainer.appendChild(mediaEl);
@@ -178,13 +183,12 @@
         playbackSpeed: speed,
         videoTime: time
       };
-      // Send to backend
+
       fetch('https://speed-of-speech-perception.onrender.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       }).then(() => {
-        // Then send via EmailJS
         emailjs.send('service_speed_perception', 'template_60hcc4f', {
           participant_id: participantId,
           trial_number: trialNumber,
