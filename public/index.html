@@ -95,119 +95,113 @@
     <p>You may now close this tab.</p>
   </div>
 
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
-    (function() {
-      emailjs.init("GLwC-Me-PN-n4W2OL"); 
-    })();
-  </script>
+  const totalTrials = 10;
+  let currentTrial = 1;
+  let lastSpeed = 1.0;
+  let lastTime = 0;
 
-  <script>
-    const totalTrials = 10;
-    let currentTrial = 1;
-    let lastSpeed = 1.0;
-    let lastTime = 0;
+  const introScreen = document.getElementById("introScreen");
+  const trialContainer = document.getElementById("trialContainer");
+  const thankYouMessage = document.getElementById("thankYouMessage");
+  const trialNumber = document.getElementById("trialNumber");
+  const mediaContainer = document.getElementById("mediaContainer");
+  const nextBtn = document.getElementById("nextBtn");
+  const speedSlider = document.getElementById("speedSlider");
+  const speedDisplay = document.getElementById("speedDisplay");
+  const resetBtn = document.getElementById("resetBtn");
+  const increaseBtn = document.getElementById("increaseSpeedBtn");
+  const decreaseBtn = document.getElementById("decreaseSpeedBtn");
 
-    const introScreen = document.getElementById("introScreen");
-    const trialContainer = document.getElementById("trialContainer");
-    const thankYouMessage = document.getElementById("thankYouMessage");
-    const trialNumber = document.getElementById("trialNumber");
-    const mediaContainer = document.getElementById("mediaContainer");
-    const nextBtn = document.getElementById("nextBtn");
-    const speedSlider = document.getElementById("speedSlider");
-    const speedDisplay = document.getElementById("speedDisplay");
-    const resetBtn = document.getElementById("resetBtn");
-    const increaseBtn = document.getElementById("increaseSpeedBtn");
-    const decreaseBtn = document.getElementById("decreaseSpeedBtn");
+  let mediaEl;
 
-    let mediaEl;
+  if (!localStorage.getItem('participantId')) {
+    localStorage.setItem('participantId', crypto.randomUUID());
+  }
 
-    if (!localStorage.getItem('participantId')) {
-      localStorage.setItem('participantId', crypto.randomUUID());
-    }
+  document.addEventListener("keydown", () => {
+    introScreen.style.display = "none";
+    trialContainer.style.display = "block";
+    currentTrial = 1;
+    lastSpeed = 1.0;
+    lastTime = 0;
+    loadTrial();
+  }, { once: true });
 
-    document.addEventListener("keydown", () => {
-      introScreen.style.display = "none";
-      trialContainer.style.display = "block";
-      currentTrial = 1;
-      lastSpeed = 1.0;
-      lastTime = 0;
-      loadTrial();
-    }, { once: true });
+  function loadTrial() {
+    trialNumber.textContent = currentTrial;
+    mediaContainer.innerHTML = "";
 
-    function loadTrial() {
-      trialNumber.textContent = currentTrial;
-      mediaContainer.innerHTML = "";
+    const isVideo = currentTrial % 2 === 1;
+    mediaEl = document.createElement(isVideo ? "video" : "audio");
+    mediaEl.src = isVideo ? "video.mp4" : "audio.mp3";
+    mediaEl.controls = true;
+    mediaEl.autoplay = true;
 
-      const isVideo = currentTrial % 2 === 1;
-      mediaEl = document.createElement(isVideo ? "video" : "audio");
-      mediaEl.src = isVideo ? "video.mp4" : "audio.mp3";
-      mediaEl.controls = true;
-      mediaEl.autoplay = true;
+    const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
+    const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
 
-      const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
-      const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
-
-      mediaEl.playbackRate = speed;
-      mediaEl.addEventListener("loadedmetadata", () => {
-        try {
-          mediaEl.currentTime = Math.max(0, time - 0.5); // buffer back slightly
-          mediaEl.play().catch(e => console.warn("Autoplay failed:", e));
-        } catch (e) {
-          console.error("Error setting time or playing:", e);
-        }
-      });
-
-      mediaContainer.appendChild(mediaEl);
-      updateSpeedDisplay(speed);
-    }
-
-    function updateSpeedDisplay(speed) {
-      speed = Math.max(0.10, Math.min(speed, 4.0));
-      if (mediaEl) mediaEl.playbackRate = speed;
-      speedSlider.value = speed;
-      speedDisplay.textContent = speed.toFixed(2) + "x";
-    }
-
-    speedSlider.addEventListener("input", () => updateSpeedDisplay(parseFloat(speedSlider.value)));
-    resetBtn.addEventListener("click", () => updateSpeedDisplay(1.0));
-    increaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) + 0.10));
-    decreaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) - 0.10));
-
-    function sendTrialData(trialNumber, speed, time) {
-      const participantId = localStorage.getItem('participantId');
-      const payload = {
-        participant_id: participantId,
-        trial_number: trialNumber,
-        playback_speed: speed,
-        video_time: time
-      };
-      emailjs.send('service_speed_perception', 'template_60hcc4f', payload)
-      .then(response => {
-        console.log('Email sent successfully', response.status, response.text);
-      })
-      .catch(error => {
-        console.error('Email failed to send', error);
-      });
-    }
-
-    nextBtn.addEventListener("click", () => {
-      const speed = mediaEl.playbackRate;
-      const time = mediaEl.currentTime;
-
-      sendTrialData(currentTrial, speed, time);
-      localStorage.setItem("lastSpeed", speed);
-      localStorage.setItem("lastTime", time);
-
-      currentTrial++;
-      if (currentTrial > totalTrials) {
-        if (mediaEl) mediaEl.pause();
-        trialContainer.style.display = "none";
-        thankYouMessage.style.display = "block";
-      } else {
-        loadTrial();
+    mediaEl.playbackRate = speed;
+    mediaEl.addEventListener("loadedmetadata", () => {
+      try {
+        mediaEl.currentTime = Math.max(0, time - 0.5);
+        mediaEl.play().catch(e => console.warn("Autoplay failed:", e));
+      } catch (e) {
+        console.error("Error setting time or playing:", e);
       }
     });
-  </script>
+
+    mediaContainer.appendChild(mediaEl);
+    updateSpeedDisplay(speed);
+  }
+
+  function updateSpeedDisplay(speed) {
+    speed = Math.max(0.10, Math.min(speed, 4.0));
+    if (mediaEl) mediaEl.playbackRate = speed;
+    speedSlider.value = speed;
+    speedDisplay.textContent = speed.toFixed(2) + "x";
+  }
+
+  speedSlider.addEventListener("input", () => updateSpeedDisplay(parseFloat(speedSlider.value)));
+  resetBtn.addEventListener("click", () => updateSpeedDisplay(1.0));
+  increaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) + 0.10));
+  decreaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) - 0.10));
+
+  function sendTrialData(trialNumber, speed, time) {
+    const participantId = localStorage.getItem('participantId');
+    const payload = {
+      participantId,
+      trial: trialNumber,
+      playbackSpeed: speed,
+      videoTime: time
+    };
+
+    fetch("https://script.google.com/macros/s/AKfycbyigTkjw3sH0i09Aaev0LrS1U1xD53AG_0OnhpuRHAVYsNqfgBqQb0-YbUmxaKgoHeeNw/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(response => console.log("Data sent to Google Sheet"))
+    .catch(error => console.error("Error sending data:", error));
+  }
+
+  nextBtn.addEventListener("click", () => {
+    const speed = mediaEl.playbackRate;
+    const time = mediaEl.currentTime;
+
+    sendTrialData(currentTrial, speed, time);
+    localStorage.setItem("lastSpeed", speed);
+    localStorage.setItem("lastTime", time);
+
+    currentTrial++;
+    if (currentTrial > totalTrials) {
+      if (mediaEl) mediaEl.pause();
+      trialContainer.style.display = "none";
+      thankYouMessage.style.display = "block";
+    } else {
+      loadTrial();
+    }
+  });
+</script>
 </body>
 </html>
