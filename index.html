@@ -179,7 +179,7 @@
     fetch("https://script.google.com/macros/s/AKfycbyigTkjw3sH0i09Aaev0LrS1U1xD53AG_0OnhpuRHAVYsNqfgBqQb0-YbUmxaKgoHeeNw/exec", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ contents: payload })  
     })
     .then(response => console.log("Data sent to Google Sheet"))
     .catch(error => console.error("Error sending data:", error));
