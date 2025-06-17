@@ -168,23 +168,33 @@
   decreaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) - 0.10));
 
   function sendTrialData(trialNumber, speed, time) {
-    const participantId = localStorage.getItem('participantId');
-    const payload = {
-      participantId,
-      trial: trialNumber,
-      playbackSpeed: speed,
-      videoTime: time
-    };
+  const participantId = localStorage.getItem('participantId');
+  const payload = {
+    data: [
+      {
+        participantId: participantId,
+        trial: trialNumber,
+        playbackSpeed: speed,
+        videoTime: time
+      }
+    ]
+  };
 
-    fetch("https://script.google.com/macros/s/AKfycbyigTkjw3sH0i09Aaev0LrS1U1xD53AG_0OnhpuRHAVYsNqfgBqQb0-YbUmxaKgoHeeNw/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: payload })  
-    })
-    .then(response => console.log("Data sent to Google Sheet"))
-    .catch(error => console.error("Error sending data:", error));
-  }
-
+  fetch("https://sheetdb.io/api/v1/tar154b79cjl1", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => {
+    console.log("Data sent to SheetDB");
+  })
+  .catch(error => {
+    console.error("Error sending data:", error);
+  });
+}
+    
   nextBtn.addEventListener("click", () => {
     const speed = mediaEl.playbackRate;
     const time = mediaEl.currentTime;
