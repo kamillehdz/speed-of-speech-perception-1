@@ -1,57 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Speed of Speech Perception</title>
   <style>
     :root {
-      --accent:#214165;
-      --bg-dark:#1e2a33;
+      --accent: #214165;
+      --bg-dark: #1e2a33;
       --bg-light: #89bce6;
       --text-light: #ffffff;
-      --text-medium: #363636; 
+      --text-medium: #e0e0e0;
       --text-dark: #000000;
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-      background-color: #a9c2ce;
-      color: #222;
-      margin: 0;
-      padding: 40px;
+      font-family: 'Trebuchet MS', Arial, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-light);
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-    .card {
-      background-color: var(--bg-dark);
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-      max-width: 960 px;
-      width: 100%;
+      padding: 40px;
     }
     h1, h2 {
       text-align: center;
-      color: var(--text-medium);
-      margin-top: 0;
-      font-weight: 1200;
-    } 
+      color: var(--bg-dark);
+      margin-bottom: 20px;
+    }
+    p {
+      max-width: 800px;
+      line-height: 1.5;
+      color: var(--text-dark);
+    }
+    .card {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 960px;
+      margin-bottom: 20px;
+    }
     video, audio {
-      max-width: 100%;
+      width: 100%;
+      max-width: 800px;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .blank-box {
-      width: 800px;
+      width: 100%;
+      max-width: 800px;
       height: 450px;
-      background-color: black;
+      background: black;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      margin-bottom: 12px;
     }
     .controls {
       margin-top: 25px;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 10px;
       font-size: 1.1rem;
@@ -66,42 +75,41 @@
     }
     input[type='range']::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
       width: 16px;
       height: 16px;
       border-radius: 50%;
       background: #79b8fb;
+      cursor: pointer;
     }
     button {
       padding: 6px 12px;
       font-size: 1rem;
-      background-color: #01366f;
+      background: var(--accent);
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #c9dff8;
+      background: #c9dff8;
       color: black;
     }
     #speedDisplay { min-width: 50px; }
   </style>
 </head>
 <body>
-  <div id="introScreen">
-    <h2 style="text-align: center; margin-bottom: 30px;"><strong>Welcome to the experiment.</strong></h2>
+  <div id="introScreen" class="card">
+    <h2>Welcome to the experiment</h2>
     <p>This experiment is designed to test your ability to comprehend speech at different playback speeds.</p>
     <p>When you are ready, press play on the video or audio clip.</p>
     <p>You can adjust the playback speed using the <strong>+</strong> and <strong>-</strong> or by using the slider beneath the video.</p>
     <p>Once you can no longer understand the speech, stop the speech and click <strong>Next</strong>. Your final playback speed will automatically be recorded.</p>
-    <p>The next clip will begin at the same speed you ended in the previous trial.</p>
-    <p>You may continue adjusting the speed as needed.</p>
+    <p>The next clip will begin at the same speed you ended in the previous trial. You may continue adjusting the speed as needed.</p>
     <p>Use <strong>Reset</strong> to return the playback speed to 1.0x.</p>
     <p style="text-align: center; margin-top: 30px;"><em>Press any key to begin.</em></p>
   </div>
 
-  <div id="trialContainer" style="display: none;">
+  <div id="trialContainer" class="card" style="display: none;">
     <h1>Trial <span id="trialNumber">1</span></h1>
     <div id="mediaContainer"></div>
 
@@ -117,31 +125,31 @@
     <button id="nextBtn" style="margin-top: 50px;">Click once you reach your max speed.</button>
   </div>
 
-  <div id="thankYouMessage" style="display: none; text-align: center; margin-top: 60px;">
+  <div id="thankYouMessage" class="card" style="display: none;">
     <h2>Thank you for participating!</h2>
     <p>You may now close this tab.</p>
   </div>
 
   <script>
-  const totalTrials = 10;
-  let currentTrial = 1;
-  let lastSpeed = 1.0;
-  let lastTime = 0;
-  const isTestMode = true;
+    const totalTrials = 10;
+    let currentTrial = 1;
+    let lastSpeed = 1.0;
+    let lastTime = 0;
+    const isTestMode = true;
 
-  const introScreen = document.getElementById("introScreen");
-  const trialContainer = document.getElementById("trialContainer");
-  const thankYouMessage = document.getElementById("thankYouMessage");
-  const trialNumber = document.getElementById("trialNumber");
-  const mediaContainer = document.getElementById("mediaContainer");
-  const nextBtn = document.getElementById("nextBtn");
-  const speedSlider = document.getElementById("speedSlider");
-  const speedDisplay = document.getElementById("speedDisplay");
-  const resetBtn = document.getElementById("resetBtn");
-  const increaseBtn = document.getElementById("increaseSpeedBtn");
-  const decreaseBtn = document.getElementById("decreaseSpeedBtn");
+    const introScreen = document.getElementById("introScreen");
+    const trialContainer = document.getElementById("trialContainer");
+    const thankYouMessage = document.getElementById("thankYouMessage");
+    const trialNumber = document.getElementById("trialNumber");
+    const mediaContainer = document.getElementById("mediaContainer");
+    const nextBtn = document.getElementById("nextBtn");
+    const speedSlider = document.getElementById("speedSlider");
+    const speedDisplay = document.getElementById("speedDisplay");
+    const resetBtn = document.getElementById("resetBtn");
+    const increaseBtn = document.getElementById("increaseSpeedBtn");
+    const decreaseBtn = document.getElementById("decreaseSpeedBtn");
 
-  let mediaEl;
+    let mediaEl;
 
     if (!localStorage.getItem('participantId')) {
       localStorage.setItem('participantId', crypto.randomUUID());
@@ -159,8 +167,8 @@
     function loadTrial() {
       trialNumber.textContent = currentTrial;
       mediaContainer.innerHTML = "";
-
       const isVideo = currentTrial % 2 === 1;
+
       const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
       const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
 
@@ -169,9 +177,6 @@
         mediaEl.src = "video.mp4";
         mediaEl.controls = true;
         mediaEl.autoplay = true;
-        mediaEl.style.width = "800px";
-        mediaEl.style.borderRadius = "8px";
-        mediaEl.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
         mediaContainer.appendChild(mediaEl);
       } else {
         const wrapper = document.createElement("div");
@@ -187,9 +192,8 @@
         mediaEl.controls = true;
         mediaEl.autoplay = true;
         mediaEl.style.marginTop = "12px";
-        mediaEl.style.width = "800px";
-        mediaEl.style.borderRadius = "8px";
-        mediaEl.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+        mediaEl.style.width = "100%";
+        mediaEl.style.maxWidth = "800px";
 
         wrapper.appendChild(blackBox);
         wrapper.appendChild(mediaEl);
@@ -244,6 +248,7 @@
     nextBtn.addEventListener("click", () => {
       const speed = mediaEl.playbackRate;
       const time = mediaEl.currentTime;
+
       sendTrialData(currentTrial, speed, time);
       localStorage.setItem("lastSpeed", speed);
       localStorage.setItem("lastTime", time);
