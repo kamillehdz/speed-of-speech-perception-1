@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <title>Speed of Speech Perception</title>
   <style>
+    :root {
+      --accent:#214165;
+      --bg-dark:#1e2a33;
+      --bg-light: #89bce6;
+      --text-light: #ffffff;
+      --text-medium: #363636; 
+      --text-dark: #000000;
+    }
     * { box-sizing: border-box; }
     body {
       font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
@@ -15,10 +23,29 @@
       flex-direction: column;
       align-items: center;
     }
-    h1 { margin-top: 20px; }
+    .card {
+      background-color: var(--bg-dark);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      max-width: 960 px;
+      width: 100%;
+    }
+    h1, h2 {
+      text-align: center;
+      color: var(--text-medium);
+      margin-top: 0;
+      font-weight: 1200;
+    } 
     video, audio {
-      width: 800px;
       max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .blank-box {
+      width: 800px;
+      height: 450px;
+      background-color: black;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
@@ -48,14 +75,14 @@
     button {
       padding: 6px 12px;
       font-size: 1rem;
-      background-color: #0056b3;
+      background-color: #01366f;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #79b8fb;
+      background-color: #c9dff8;
       color: black;
     }
     #speedDisplay { min-width: 50px; }
@@ -100,6 +127,7 @@
   let currentTrial = 1;
   let lastSpeed = 1.0;
   let lastTime = 0;
+  const isTestMode = true;
 
   const introScreen = document.getElementById("introScreen");
   const trialContainer = document.getElementById("trialContainer");
@@ -115,103 +143,120 @@
 
   let mediaEl;
 
-  if (!localStorage.getItem('participantId')) {
-    localStorage.setItem('participantId', crypto.randomUUID());
-  }
+    if (!localStorage.getItem('participantId')) {
+      localStorage.setItem('participantId', crypto.randomUUID());
+    }
 
-  document.addEventListener("keydown", () => {
-    introScreen.style.display = "none";
-    trialContainer.style.display = "block";
-    currentTrial = 1;
-    lastSpeed = 1.0;
-    lastTime = 0;
-    loadTrial();
-  }, { once: true });
+    document.addEventListener("keydown", () => {
+      introScreen.style.display = "none";
+      trialContainer.style.display = "block";
+      currentTrial = 1;
+      lastSpeed = 1.0;
+      lastTime = 0;
+      loadTrial();
+    }, { once: true });
 
-  function loadTrial() {
-    trialNumber.textContent = currentTrial;
-    mediaContainer.innerHTML = "";
+    function loadTrial() {
+      trialNumber.textContent = currentTrial;
+      mediaContainer.innerHTML = "";
 
-    const isVideo = currentTrial % 2 === 1;
-    mediaEl = document.createElement(isVideo ? "video" : "audio");
-    mediaEl.src = isVideo ? "video.mp4" : "audio.mp3";
-    mediaEl.controls = true;
-    mediaEl.autoplay = true;
+      const isVideo = currentTrial % 2 === 1;
+      const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
+      const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
 
-    const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
-    const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
+      if (isVideo) {
+        mediaEl = document.createElement("video");
+        mediaEl.src = "video.mp4";
+        mediaEl.controls = true;
+        mediaEl.autoplay = true;
+        mediaEl.style.width = "800px";
+        mediaEl.style.borderRadius = "8px";
+        mediaEl.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+        mediaContainer.appendChild(mediaEl);
+      } else {
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.flexDirection = "column";
+        wrapper.style.alignItems = "center";
 
-    mediaEl.playbackRate = speed;
-    mediaEl.addEventListener("loadedmetadata", () => {
-      try {
-        mediaEl.currentTime = Math.max(0, time - 0.5);
-        mediaEl.play().catch(e => console.warn("Autoplay failed:", e));
-      } catch (e) {
-        console.error("Error setting time or playing:", e);
+        const blackBox = document.createElement("div");
+        blackBox.className = "blank-box";
+
+        mediaEl = document.createElement("audio");
+        mediaEl.src = "audio.mp3";
+        mediaEl.controls = true;
+        mediaEl.autoplay = true;
+        mediaEl.style.marginTop = "12px";
+        mediaEl.style.width = "800px";
+        mediaEl.style.borderRadius = "8px";
+        mediaEl.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+
+        wrapper.appendChild(blackBox);
+        wrapper.appendChild(mediaEl);
+        mediaContainer.appendChild(wrapper);
+      }
+
+      mediaEl.playbackRate = speed;
+      mediaEl.addEventListener("loadedmetadata", () => {
+        try {
+          mediaEl.currentTime = Math.max(0, time - 0.5);
+          mediaEl.play().catch(e => console.warn("Autoplay failed:", e));
+        } catch (e) {
+          console.error("Error setting time or playing:", e);
+        }
+      });
+
+      updateSpeedDisplay(speed);
+    }
+
+    function updateSpeedDisplay(speed) {
+      speed = Math.max(0.10, Math.min(speed, 4.0));
+      if (mediaEl) mediaEl.playbackRate = speed;
+      speedSlider.value = speed;
+      speedDisplay.textContent = speed.toFixed(2) + "x";
+    }
+
+    speedSlider.addEventListener("input", () => updateSpeedDisplay(parseFloat(speedSlider.value)));
+    resetBtn.addEventListener("click", () => updateSpeedDisplay(1.0));
+    increaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) + 0.10));
+    decreaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) - 0.10));
+
+    function sendTrialData(trialNumber, speed, time) {
+      const participantId = localStorage.getItem('participantId');
+      const payload = {
+        data: [{ participantId, trial: trialNumber, playbackSpeed: speed, videoTime: time }]
+      };
+
+      if (isTestMode) {
+        console.log("[TEST MODE] Trial Data:", payload);
+        return;
+      }
+
+      fetch("https://sheetdb.io/api/v1/tar154b79cjl1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => console.log("Data sent to SheetDB"))
+      .catch(error => console.error("Error sending data:", error));
+    }
+
+    nextBtn.addEventListener("click", () => {
+      const speed = mediaEl.playbackRate;
+      const time = mediaEl.currentTime;
+      sendTrialData(currentTrial, speed, time);
+      localStorage.setItem("lastSpeed", speed);
+      localStorage.setItem("lastTime", time);
+
+      currentTrial++;
+      if (currentTrial > totalTrials) {
+        if (mediaEl && !mediaEl.paused) mediaEl.pause();
+        trialContainer.style.display = "none";
+        thankYouMessage.style.display = "block";
+      } else {
+        loadTrial();
       }
     });
-
-    mediaContainer.appendChild(mediaEl);
-    updateSpeedDisplay(speed);
-  }
-
-  function updateSpeedDisplay(speed) {
-    speed = Math.max(0.10, Math.min(speed, 4.0));
-    if (mediaEl) mediaEl.playbackRate = speed;
-    speedSlider.value = speed;
-    speedDisplay.textContent = speed.toFixed(2) + "x";
-  }
-
-  speedSlider.addEventListener("input", () => updateSpeedDisplay(parseFloat(speedSlider.value)));
-  resetBtn.addEventListener("click", () => updateSpeedDisplay(1.0));
-  increaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) + 0.10));
-  decreaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) - 0.10));
-
-  function sendTrialData(trialNumber, speed, time) {
-  const participantId = localStorage.getItem('participantId');
-  const payload = {
-    data: [
-      {
-        participantId: participantId,
-        trial: trialNumber,
-        playbackSpeed: speed,
-        videoTime: time
-      }
-    ]
-  };
-
-  fetch("https://sheetdb.io/api/v1/tar154b79cjl1", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(response => {
-    console.log("Data sent to SheetDB");
-  })
-  .catch(error => {
-    console.error("Error sending data:", error);
-  });
-}
-    
-  nextBtn.addEventListener("click", () => {
-    const speed = mediaEl.playbackRate;
-    const time = mediaEl.currentTime;
-
-    sendTrialData(currentTrial, speed, time);
-    localStorage.setItem("lastSpeed", speed);
-    localStorage.setItem("lastTime", time);
-
-    currentTrial++;
-    if (currentTrial > totalTrials) {
-      if (mediaEl) mediaEl.pause();
-      trialContainer.style.display = "none";
-      thankYouMessage.style.display = "block";
-    } else {
-      loadTrial();
-    }
-  });
-</script>
+  </script>
 </body>
 </html>
