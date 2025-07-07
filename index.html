@@ -243,7 +243,10 @@
     <section id="exampleScreen">
         <h1>Example</h1>
         <p>This is an example of what you will see.</p>
-        <video src="example_vid.mp4" controls autoplay></video>
+        <video controls autoplay>
+            <source src="example_vid.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
         <p>When ready, click below to start the actual trial.</p>
         <button onclick="goToTrial()">Start the Actual Trial</button>
     </section>
@@ -313,7 +316,13 @@
         const baseSpeed = currentTrial === 1 ? 1.0 : Math.max(1.0, lastSpeed * 0.75);
         const time = currentTrial === 1 ? 0 : lastTime;
         
-        const isVideo = currentTrial % 2 === 1;
+        let isVideo;
+        if (currentTrial <= totalTrials / 2) {
+            
+            isVideo = currentTrial % 2 === 1;
+        } else {
+            isVideo = currentTrial % 2 === 0;
+        }
         
         if (isVideo) {
             mediaEl = document.createElement("video");
@@ -321,34 +330,34 @@
             mediaEl.controls = true;
             mediaEl.autoplay = true;
             mediaContainer.appendChild(mediaEl);
-        
         } else {
+            
             const wrapper = document.createElement("div");
             wrapper.style.display = "flex";
             wrapper.style.flexDirection = "column";
             wrapper.style.alignItems = "center";
-
-        const blackBox = document.createElement("div");
-        blackBox.className = "blank-box";
-
-        mediaEl = document.createElement("audio");
-        mediaEl.src = "audio.mp3";
-        mediaEl.controls = true;
-        mediaEl.autoplay = true;
-        mediaEl.style.marginTop = "12px";
-        mediaEl.style.width = "800px";
-
-        wrapper.appendChild(blackBox);
-        wrapper.appendChild(mediaEl);
-        mediaContainer.appendChild(wrapper);
-    }
-
-    mediaEl.playbackRate = baseSpeed;
-    mediaEl.addEventListener("loadedmetadata", () => {
-    mediaEl.currentTime = Math.max(0, time - 0.5);
-    });
-
-    updateSpeedDisplay(baseSpeed);
+            
+            const blackBox = document.createElement("div");
+            blackBox.className = "blank-box";
+            
+            mediaEl = document.createElement("audio");
+            mediaEl.src = "audio.mp3";
+            mediaEl.controls = true;
+            mediaEl.autoplay = true;
+            mediaEl.style.marginTop = "12px";
+            mediaEl.style.width = "800px";
+            
+            wrapper.appendChild(blackBox);
+            wrapper.appendChild(mediaEl);
+            mediaContainer.appendChild(wrapper);
+        }
+        
+        mediaEl.playbackRate = baseSpeed;
+        mediaEl.addEventListener("loadedmetadata", () => {
+            mediaEl.currentTime = Math.max(0, time - 0.5);
+        });
+        
+        updateSpeedDisplay(baseSpeed);
     }
 
     function updateProgressBar() {
