@@ -17,25 +17,72 @@
       color: var(--text);
       font-family: 'Trebuchet MS', Arial, sans-serif;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       height: 100vh;
-      overflow: hidden;
+      overflow: auto;
     }
 
-    #introScreen {
+    #progressBarContainer {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 200px;
+        height: 20px;
+        background: #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        display: none;
+    }
+
+    #progressBar {
+        height: 100%;
+        width: 0%;
+        background: var(--accent);
+    }
+
+    section {
       text-align: center;
-      max-width: 600px;
+      max-width: 800px;
       padding: 40px;
+      display: none;
     }
 
-    #introScreen .fade-line {
-      white-space: nowrap;
+    section.active {
+      display: block;
+    }
+    
+    #introScreen {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #introScreen.active {
+        display: flex;
+    }
+    
+    #introScreen h1 {
+        font-weight: bold;
+        margin-top: 60px;
+    }
+    
+    #introScreen p {
+        max-width: 600px;
+        line-height: 1.6;
+    }
+    
+    .fancy-link {
+        font-style: italic;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
     }
 
     .brain-icon {
-      width: 80px;
-      height: 80px;
+      width: 140px;
+      height: 140px;
+      margin-top: 80px;
       margin-bottom: 20px;
       animation: pulse 2s infinite alternate;
     }
@@ -52,9 +99,6 @@
     .fade-line:nth-child(5) { animation-delay: 4s; }
     .fade-line:nth-child(6) { animation-delay: 5s; }
     .fade-line:nth-child(7) { animation-delay: 6s; }
-    .fade-line:nth-child(8) { animation-delay: 7s; }
-    .fade-line:nth-child(9) { animation-delay: 8s; }
-    .fade-line:nth-child(10) { animation-delay: 9s; }
 
     @keyframes fadeIn {
       to {
@@ -69,7 +113,7 @@
       }
     }
 
-    video {
+    video, audio {
       width: 800px;
       max-width: 100%;
       border-radius: 8px;
@@ -84,18 +128,20 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    audio {
-      width: 800px;
-      max-width: 100%;
-      margin-top: 12px;
-    }
-
     .controls {
       margin-top: 25px;
       display: flex;
       align-items: center;
       gap: 10px;
       font-size: 1.1rem;
+    }
+
+    #trialScreen {
+        min-height: 100vh; 
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-bottom: 200px; 
     }
 
     input[type='range'] {
@@ -106,6 +152,7 @@
       border-radius: 5px;
       outline: none;
     }
+
     input[type='range']::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -113,6 +160,10 @@
       height: 16px;
       border-radius: 50%;
       background: #01366f;
+    }
+
+    input[type='range']:disabled {
+        opacity: 0.5;
     }
 
     button {
@@ -129,14 +180,26 @@
       color: black;
     }
 
+    button.glow-green {
+        box-shadow: 0 0 0 4px rgba(7, 245, 7, 0.936);
+    }
+    
+    button.glow-red {
+        box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.847);
+    }
+
     #speedDisplay { min-width: 50px; }
   </style>
 </head>
 
 <body>
-<div id="introScreen">
-  <div class="brain-container">
-  <svg
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+
+  <!-- Restored INTRO SCREEN -->
+  <section id="introScreen" class="active">
+    <svg
     class="brain-icon"
     fill="#000000"
     version="1.1"
@@ -144,8 +207,8 @@
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     viewBox="0 0 190.496 190.497"
-    width="120"
-    height="120"
+    width="140"
+    height="140"
     xml:space="preserve">
       <g> 
         <path d="M46.955,148.69c9.833-0.52,16.05-3.731,18.483-9.559c1.039-2.474,1.146-5.117,0.812-7.683 c2.262,1.192,5.159,2.304,8.15,2.304c0.583,0,1.161-0.038,1.744-0.126c3.03-0.459,5.597-2.205,7.415-5.023 c0.833-1.303,0.458-3.037-0.84-3.875c-1.298-0.819-3.037-0.448-3.869,0.844c-0.964,1.499-2.088,2.287-3.535,2.517 c-3.621,0.574-8.321-2.561-9.84-3.809c-0.492-0.416-1.081-0.574-1.683-0.59c-1.053-2.102-2.234-3.87-3.198-4.958 c-11.138-12.461-11.608-22.708-11.62-22.862c-0.035-1.538-1.228-2.559-2.859-2.729c-1.539,0.032-2.769,1.304-2.744,2.855 c0.012,0.497,0.381,12.306,13.043,26.468c2.353,2.654,5.912,9.62,3.859,14.528c-1.904,4.558-8.449,5.85-13.603,6.123 c-1.541,0.088-2.729,1.4-2.65,2.933c0.08,1.506,1.305,2.665,2.79,2.665L46.955,148.69z"></path> 
@@ -166,43 +229,52 @@
         <path d="M164.549,91.401c1.066-1.097,1.051-2.851-0.027-3.934c-1.088-1.092-2.867-1.092-3.963,0 c-0.306,0.304-7.299,7.543-6.019,27.16c-0.688,4.246-3.797,15.349-9.894,16.159c-1.519,0.207-2.603,1.616-2.405,3.151 c0.191,1.406,1.396,2.43,2.772,2.43l0.374-0.02c11.691-1.562,14.604-20.386,14.73-21.185l0.025-0.591 C158.994,97.708,164.406,91.569,164.549,91.401z"></path> 
         <path d="M118.181,94.176c1.526-0.219,2.597-1.636,2.386-3.166c-0.232-1.538-1.682-2.583-3.165-2.383 c-2.373,0.343-11.397,0.791-12.486-3.154c-0.405-1.494-1.938-2.354-3.437-1.965c-1.499,0.408-2.375,1.948-1.97,3.439 c1.745,6.411,9.236,7.519,14.232,7.519C115.94,94.461,117.676,94.242,118.181,94.176z"></path> </g> </g> </g>
       </svg>
-  </div>
-  
-  <h1 class="fade-line">Welcome to the Experiment</h1>
-  <br>
-  <p class="fade-line">This experiment is designed to test your ability to comprehend speech at different playback speeds.</p>
-  <p class="fade-line">When you are ready, press play on the video or audio clip.</p>
-  <p class="fade-line">You can adjust the playback speed using the <strong>+</strong> and <strong>-</strong> buttons or by using the slider beneath the video.</p>
-  <p class="fade-line">Once you can no longer understand the speech, stop the speech and click <strong>Next</strong>.</p>
-  <p class="fade-line">Your final playback speed will automatically be recorded.</p>
-  <p class="fade-line">Use <strong>Reset</strong> to return the playback speed to 1.0x.</p>
-  <h3 class="fade-line"><em>Press any key to begin.</em></h3>
-  
-</div>
 
+    <h1 class="fade-line">Welcome to the Experiment</h1>
+    <p class="fade-line">This experiment will measure how fast you can understand speech.</p>
+    <p class="fade-line">You will see a video of someone telling a story and your job is to adjust the playback speed to be as fast as possible, while still being able to follow the story.</p>
+    <p class="fade-line">You will always hear the talker's voice.</p>
+    <p class="fade-line">Sometimes you will see the face of the talker and sometimes you will see only a blank screen, but the task is the same in both cases.</p>
+    <p class="fade-line">
+    <a href="#" class="fancy-link" onclick="goToExample()">[[Click here to see an example.]]</a>
+    </p>
+    </section>
+    
+    <section id="exampleScreen">
+        <h1>Example</h1>
+        <p>This is an example of what you will see.</p>
+        <video src="example_vid.mp4" controls autoplay></video>
+        <p>When ready, click below to start the actual trial.</p>
+        <button onclick="goToTrial()">Start the Actual Trial</button>
+    </section>
 
-  <div id="trialContainer" style="display:none;">
-    <h1>Trial <span id="trialNumber">1</span></h1>
+  <section id="trialScreen">
     <div id="mediaContainer"></div>
-
     <div class="controls">
-      <label for="speedSlider">Playback Speed:</label>
+      <label>Playback Speed:</label>
       <button id="decreaseSpeedBtn">-</button>
-      <input id="speedSlider" type="range" min="0.10" max="4.0" step="0.10" value="1.0">
+      <input id="speedSlider" type="range" min="1.0" max="4.0" step="0.1" value="1.0" disabled>
       <button id="increaseSpeedBtn">+</button>
       <span id="speedDisplay">1.00x</span>
-      <button id="resetBtn">Reset Speed</button>
+      <button id="resetBtn">Reset</button>
     </div>
+    <button id="nextBtn" style="margin-top:40px;">Click once you reach your max speed</button>
+  </section>
 
-    <button id="nextBtn" style="margin-top: 50px;">Click once you reach your max speed.</button>
-  </div>
-
-  <div id="thankYouMessage" style="display:none; text-align:center; margin-top:60px;">
+  <section id="thankYouMessage">
     <h2>Thank you for participating!</h2>
     <p>You may now close this tab.</p>
-  </div>
+  </section>
 
   <script>
+        function goToTrial() {
+            exampleScreen.classList.remove("active");
+            trialScreen.classList.add("active");
+            progressBarContainer.style.display = "block";
+            loadTrial();
+            window.scrollTo({ top: 0, behavior: "instant" });
+        }
+
     const totalTrials = 10;
     let currentTrial = 1;
     let lastSpeed = 1.0;
@@ -210,9 +282,11 @@
     const isTestMode = true;
 
     const introScreen = document.getElementById("introScreen");
-    const trialContainer = document.getElementById("trialContainer");
+    const exampleScreen = document.getElementById("exampleScreen");
+    const trialScreen = document.getElementById("trialScreen");
     const thankYouMessage = document.getElementById("thankYouMessage");
-    const trialNumber = document.getElementById("trialNumber");
+    const progressBarContainer = document.getElementById("progressBarContainer");
+    const progressBar = document.getElementById("progressBar");
     const mediaContainer = document.getElementById("mediaContainer");
     const nextBtn = document.getElementById("nextBtn");
     const speedSlider = document.getElementById("speedSlider");
@@ -221,36 +295,38 @@
     const increaseBtn = document.getElementById("increaseSpeedBtn");
     const decreaseBtn = document.getElementById("decreaseSpeedBtn");
 
+    function goToExample() {
+        introScreen.classList.remove("active");
+        exampleScreen.classList.add("active");
+        exampleScreen.scrollIntoView({ behavior: "smooth" });
+    }
+
     let mediaEl;
 
     if (!localStorage.getItem('participantId')) {
       localStorage.setItem('participantId', crypto.randomUUID());
     }
 
-    document.addEventListener("keydown", () => {
-      introScreen.style.display = "none";
-      trialContainer.style.display = "block";
-      loadTrial();
-    }, { once: true });
-
     function loadTrial() {
-      trialNumber.textContent = currentTrial;
-      mediaContainer.innerHTML = "";
-      const isVideo = currentTrial % 2 === 1;
-      const speed = currentTrial === 1 ? 1.0 : parseFloat(localStorage.getItem("lastSpeed")) || 1.0;
-      const time = currentTrial === 1 ? 0 : parseFloat(localStorage.getItem("lastTime")) || 0;
-
-      if (isVideo) {
-        mediaEl = document.createElement("video");
-        mediaEl.src = "video.mp4";
-        mediaEl.controls = true;
-        mediaEl.autoplay = true;
-        mediaContainer.appendChild(mediaEl);
-      } else {
-        const wrapper = document.createElement("div");
-        wrapper.style.display = "flex";
-        wrapper.style.flexDirection = "column";
-        wrapper.style.alignItems = "center";
+        updateProgressBar();
+        mediaContainer.innerHTML = "";
+        const baseSpeed = currentTrial === 1 ? 1.0 : Math.max(1.0, lastSpeed * 0.75);
+        const time = currentTrial === 1 ? 0 : lastTime;
+        
+        const isVideo = currentTrial % 2 === 1;
+        
+        if (isVideo) {
+            mediaEl = document.createElement("video");
+            mediaEl.src = "video.mp4";
+            mediaEl.controls = true;
+            mediaEl.autoplay = true;
+            mediaContainer.appendChild(mediaEl);
+        
+        } else {
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "flex";
+            wrapper.style.flexDirection = "column";
+            wrapper.style.alignItems = "center";
 
         const blackBox = document.createElement("div");
         blackBox.className = "blank-box";
@@ -265,28 +341,53 @@
         wrapper.appendChild(blackBox);
         wrapper.appendChild(mediaEl);
         mediaContainer.appendChild(wrapper);
-      }
+    }
 
-      mediaEl.playbackRate = speed;
-      mediaEl.addEventListener("loadedmetadata", () => {
-        mediaEl.currentTime = Math.max(0, time - 0.5);
-        mediaEl.play().catch(() => {});
-      });
+    mediaEl.playbackRate = baseSpeed;
+    mediaEl.addEventListener("loadedmetadata", () => {
+    mediaEl.currentTime = Math.max(0, time - 0.5);
+    });
 
-      updateSpeedDisplay(speed);
+    updateSpeedDisplay(baseSpeed);
+    }
+
+    function updateProgressBar() {
+      const percent = ((currentTrial - 1) / totalTrials) * 100;
+      progressBar.style.width = percent + "%";
     }
 
     function updateSpeedDisplay(speed) {
-      speed = Math.max(0.10, Math.min(speed, 4.0));
+      speed = Math.max(1.0, Math.min(speed, 4.0));
       if (mediaEl) mediaEl.playbackRate = speed;
       speedSlider.value = speed;
       speedDisplay.textContent = speed.toFixed(2) + "x";
+      lastSpeed = speed;
     }
 
-    speedSlider.addEventListener("input", () => updateSpeedDisplay(parseFloat(speedSlider.value)));
-    resetBtn.addEventListener("click", () => updateSpeedDisplay(1.0));
-    increaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) + 0.10));
-    decreaseBtn.addEventListener("click", () => updateSpeedDisplay(parseFloat(speedSlider.value) - 0.10));
+    document.addEventListener("keydown", (e) => {
+        if (trialScreen.classList.contains("active")) {
+            if (e.key === "ArrowRight") increaseSpeed();
+            if (e.key === "ArrowLeft") decreaseSpeed();
+        }
+    });
+
+    function addGlow(button, colorClass) {
+        button.classList.add(colorClass);
+        setTimeout(() => {
+            button.classList.remove(colorClass);
+        }, 200);
+        }
+
+    function increaseSpeed() { updateSpeedDisplay(lastSpeed + 0.1);
+        addGlow(increaseBtn, "glow-green");
+     }
+    function decreaseSpeed() { updateSpeedDisplay(lastSpeed - 0.1);
+        addGlow(decreaseBtn, "glow-red");
+     }
+
+    resetBtn.onclick = () => updateSpeedDisplay(1.0);
+    increaseBtn.onclick = increaseSpeed;
+    decreaseBtn.onclick = decreaseSpeed;
 
     function sendTrialData(trialNumber, speed, time) {
       const participantId = localStorage.getItem('participantId');
@@ -308,22 +409,24 @@
       .catch(error => console.error("Error sending data:", error));
     }
 
-    nextBtn.addEventListener("click", () => {
-      const speed = mediaEl.playbackRate;
-      const time = mediaEl.currentTime;
-      sendTrialData(currentTrial, speed, time);
-      localStorage.setItem("lastSpeed", speed);
-      localStorage.setItem("lastTime", time);
-
-      currentTrial++;
-      if (currentTrial > totalTrials) {
-        if (mediaEl && !mediaEl.paused) mediaEl.pause();
-        trialContainer.style.display = "none";
-        thankYouMessage.style.display = "block";
-      } else {
-        loadTrial();
-      }
-    });
+    nextBtn.onclick = () => {
+        lastSpeed = mediaEl.playbackRate;
+        lastTime = mediaEl.currentTime;
+        currentTrial++;
+        if (currentTrial > totalTrials) {
+            introScreen.classList.remove("active");
+            exampleScreen.classList.remove("active");
+            trialScreen.classList.remove("active");
+            progressBarContainer.style.display = "none";
+        if (mediaEl) {
+            mediaEl.pause();
+        }
+            thankYouMessage.classList.add("active");
+            thankYouMessage.scrollIntoView({ behavior: "smooth" });
+        } else {
+            loadTrial();
+        }
+    };
   </script>
 </body>
 </html>
