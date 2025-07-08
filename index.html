@@ -298,9 +298,13 @@
     const decreaseBtn = document.getElementById("decreaseSpeedBtn");
 
     function goToExample() {
-        introScreen.classList.remove("active");
-        exampleScreen.classList.add("active");
-        exampleScreen.scrollIntoView({ behavior: "smooth" });
+      introScreen.classList.remove("active");
+      exampleScreen.classList.add("active");
+      exampleScreen.scrollIntoView({ behavior: "smooth" });
+
+      const exampleVideo = exampleScreen.querySelector("video");
+      exampleVideo.muted = false; 
+      exampleVideo.play().catch(e => console.log("Autoplay failed:", e));
     }
 
     let mediaEl;
@@ -309,6 +313,13 @@
       localStorage.setItem('participantId', crypto.randomUUID());
     }
 
+    const participantId = localStorage.getItem('participantId');
+    let participantNumber = 1;
+    if (participantId) {
+        participantNumber = participantId.charCodeAt(participantId.length - 1);
+    }
+    const startsWithVideo = visitCount % 2 === 1;
+
     function loadTrial() {
         updateProgressBar();
         mediaContainer.innerHTML = "";
@@ -316,11 +327,10 @@
         const time = currentTrial === 1 ? 0 : lastTime;
         
         let isVideo;
-        if (currentTrial <= totalTrials / 2) {
-            
-            isVideo = currentTrial % 2 === 1;
+        if (startsWithVideo) {
+          isVideo = currentTrial % 2 === 1;
         } else {
-            isVideo = currentTrial % 2 === 0;
+          isVideo = currentTrial % 2 === 0;
         }
         
         if (isVideo) {
