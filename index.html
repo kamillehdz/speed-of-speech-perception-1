@@ -255,7 +255,7 @@
         <h1>Example</h1>
         <p>This is an example of what you will see.</p>
         <video controls>
-            <source src="example_vid.mp4" type="video/mp4">
+            <source src="example_video.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
         <p>When ready, click below to start the actual trial.</p>
@@ -309,7 +309,6 @@ const resetBtn = document.getElementById("resetBtn");
 const increaseBtn = document.getElementById("increaseSpeedBtn");
 const decreaseBtn = document.getElementById("decreaseSpeedBtn");
 
-// ✅ Track visits to decide start mode
 let visitCount = parseInt(localStorage.getItem('visitCount') || '0');
 visitCount++;
 localStorage.setItem('visitCount', visitCount);
