@@ -113,6 +113,13 @@
       }
     }
 
+  video {
+    margin-top: 40px;
+  }
+  .blank-box {
+    margin-top: 40px;
+  }
+
     video, audio {
       width: 800px;
       max-width: 100%;
@@ -242,7 +249,7 @@
     <section id="exampleScreen">
         <h1>Example</h1>
         <p>This is an example of what you will see.</p>
-        <video controls autoplay>
+        <video controls>
             <source src="example_vid.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
@@ -269,182 +276,178 @@
   </section>
 
   <script>
-        function goToTrial() {
-            exampleScreen.classList.remove("active");
-            trialScreen.classList.add("active");
-            progressBarContainer.style.display = "block";
-            loadTrial();
-            window.scrollTo({ top: 0, behavior: "instant" });
-        }
+  function goToTrial() {
+    exampleScreen.classList.remove("active");
+  trialScreen.classList.add("active");
+  progressBarContainer.style.display = "block";
+  loadTrial();
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
 
-    const totalTrials = 10;
-    let currentTrial = 1;
-    let lastSpeed = 1.0;
-    let lastTime = 0;
-    const isTestMode = true;
+const totalTrials = 10;
+let currentTrial = 1;
+let lastSpeed = 1.0;
+let lastTime = 0;
+const isTestMode = true;
 
-    const introScreen = document.getElementById("introScreen");
-    const exampleScreen = document.getElementById("exampleScreen");
-    const trialScreen = document.getElementById("trialScreen");
-    const thankYouMessage = document.getElementById("thankYouMessage");
-    const progressBarContainer = document.getElementById("progressBarContainer");
-    const progressBar = document.getElementById("progressBar");
-    const mediaContainer = document.getElementById("mediaContainer");
-    const nextBtn = document.getElementById("nextBtn");
-    const speedSlider = document.getElementById("speedSlider");
-    const speedDisplay = document.getElementById("speedDisplay");
-    const resetBtn = document.getElementById("resetBtn");
-    const increaseBtn = document.getElementById("increaseSpeedBtn");
-    const decreaseBtn = document.getElementById("decreaseSpeedBtn");
+const introScreen = document.getElementById("introScreen");
+const exampleScreen = document.getElementById("exampleScreen");
+const trialScreen = document.getElementById("trialScreen");
+const thankYouMessage = document.getElementById("thankYouMessage");
+const progressBarContainer = document.getElementById("progressBarContainer");
+const progressBar = document.getElementById("progressBar");
+const mediaContainer = document.getElementById("mediaContainer");
+const nextBtn = document.getElementById("nextBtn");
+const speedSlider = document.getElementById("speedSlider");
+const speedDisplay = document.getElementById("speedDisplay");
+const resetBtn = document.getElementById("resetBtn");
+const increaseBtn = document.getElementById("increaseSpeedBtn");
+const decreaseBtn = document.getElementById("decreaseSpeedBtn");
 
-    function goToExample() {
-      introScreen.classList.remove("active");
-      exampleScreen.classList.add("active");
-      exampleScreen.scrollIntoView({ behavior: "smooth" });
+// ✅ Track visits to decide start mode
+let visitCount = parseInt(localStorage.getItem('visitCount') || '0');
+visitCount++;
+localStorage.setItem('visitCount', visitCount);
+const startsWithVideo = visitCount % 2 === 1;
 
-      const exampleVideo = exampleScreen.querySelector("video");
-      exampleVideo.muted = false; 
-      exampleVideo.play().catch(e => console.log("Autoplay failed:", e));
+function goToExample() {
+  introScreen.classList.remove("active");
+  exampleScreen.classList.add("active");
+  exampleScreen.scrollIntoView({ behavior: "smooth" });
+
+  const exampleVideo = exampleScreen.querySelector("video");
+  exampleVideo.muted = false; 
+  exampleVideo.play().catch(e => console.log("Autoplay failed:", e));
+}
+
+let mediaEl;
+
+function loadTrial() {
+  updateProgressBar();
+  mediaContainer.innerHTML = "";
+  const baseSpeed = currentTrial === 1 ? 1.0 : Math.max(1.0, lastSpeed * 0.75);
+  const time = currentTrial === 1 ? 0 : lastTime;
+
+  let isVideo;
+  if (startsWithVideo) {
+    isVideo = currentTrial % 2 === 1;
+  } else {
+    isVideo = currentTrial % 2 === 0;
+  }
+
+  if (isVideo) {
+    mediaEl = document.createElement("video");
+    mediaEl.src = "video.mp4";
+    mediaEl.controls = true;
+    mediaEl.autoplay = true;
+    mediaContainer.appendChild(mediaEl);
+  } else {
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "flex";
+    wrapper.style.flexDirection = "column";
+    wrapper.style.alignItems = "center";
+
+    const blackBox = document.createElement("div");
+    blackBox.className = "blank-box";
+
+    mediaEl = document.createElement("audio");
+    mediaEl.src = "audio.mp3";
+    mediaEl.controls = true;
+    mediaEl.autoplay = true;
+    mediaEl.style.marginTop = "12px";
+    mediaEl.style.width = "800px";
+
+    wrapper.appendChild(blackBox);
+    wrapper.appendChild(mediaEl);
+    mediaContainer.appendChild(wrapper);
+  }
+
+  mediaEl.playbackRate = baseSpeed;
+  mediaEl.addEventListener("loadedmetadata", () => {
+    mediaEl.currentTime = Math.max(0, time - 0.5);
+  });
+
+  updateSpeedDisplay(baseSpeed);
+}
+
+function updateProgressBar() {
+  const percent = ((currentTrial - 1) / totalTrials) * 100;
+  progressBar.style.width = percent + "%";
+}
+
+function updateSpeedDisplay(speed) {
+  speed = Math.max(1.0, Math.min(speed, 4.0));
+  if (mediaEl) mediaEl.playbackRate = speed;
+  speedSlider.value = speed;
+  speedDisplay.textContent = speed.toFixed(2) + "x";
+  lastSpeed = speed;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (trialScreen.classList.contains("active")) {
+    if (e.key === "ArrowRight") increaseSpeed();
+    if (e.key === "ArrowLeft") decreaseSpeed();
+  }
+});
+
+function addGlow(button, colorClass) {
+  button.classList.add(colorClass);
+  setTimeout(() => {
+    button.classList.remove(colorClass);
+  }, 200);
+}
+
+function increaseSpeed() {
+  updateSpeedDisplay(lastSpeed + 0.1);
+  addGlow(increaseBtn, "glow-green");
+}
+function decreaseSpeed() {
+  updateSpeedDisplay(lastSpeed - 0.1);
+  addGlow(decreaseBtn, "glow-red");
+}
+
+resetBtn.onclick = () => updateSpeedDisplay(1.0);
+increaseBtn.onclick = increaseSpeed;
+decreaseBtn.onclick = decreaseSpeed;
+
+function sendTrialData(trialNumber, speed, time) {
+  const participantId = localStorage.getItem('participantId');
+  const payload = {
+    data: [{ participantId, trial: trialNumber, playbackSpeed: speed, videoTime: time }]
+  };
+
+  if (isTestMode) {
+    console.log("[TEST MODE] Trial Data:", payload);
+    return;
+  }
+
+  fetch("https://sheetdb.io/api/v1/tar154b79cjl1", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then(response => console.log("Data sent to SheetDB"))
+    .catch(error => console.error("Error sending data:", error));
+}
+
+nextBtn.onclick = () => {
+  lastSpeed = mediaEl.playbackRate;
+  lastTime = mediaEl.currentTime;
+  currentTrial++;
+  if (currentTrial > totalTrials) {
+    introScreen.classList.remove("active");
+    exampleScreen.classList.remove("active");
+    trialScreen.classList.remove("active");
+    progressBarContainer.style.display = "none";
+    if (mediaEl) {
+      mediaEl.pause();
     }
-
-    let mediaEl;
-
-    if (!localStorage.getItem('participantId')) {
-      localStorage.setItem('participantId', crypto.randomUUID());
-    }
-
-    const participantId = localStorage.getItem('participantId');
-    let participantNumber = 1;
-    if (participantId) {
-        participantNumber = participantId.charCodeAt(participantId.length - 1);
-    }
-    const startsWithVideo = visitCount % 2 === 1;
-
-    function loadTrial() {
-        updateProgressBar();
-        mediaContainer.innerHTML = "";
-        const baseSpeed = currentTrial === 1 ? 1.0 : Math.max(1.0, lastSpeed * 0.75);
-        const time = currentTrial === 1 ? 0 : lastTime;
-        
-        let isVideo;
-        if (startsWithVideo) {
-          isVideo = currentTrial % 2 === 1;
-        } else {
-          isVideo = currentTrial % 2 === 0;
-        }
-        
-        if (isVideo) {
-            mediaEl = document.createElement("video");
-            mediaEl.src = "video.mp4";
-            mediaEl.controls = true;
-            mediaEl.autoplay = true;
-            mediaContainer.appendChild(mediaEl);
-        } else {
-            
-            const wrapper = document.createElement("div");
-            wrapper.style.display = "flex";
-            wrapper.style.flexDirection = "column";
-            wrapper.style.alignItems = "center";
-            
-            const blackBox = document.createElement("div");
-            blackBox.className = "blank-box";
-            
-            mediaEl = document.createElement("audio");
-            mediaEl.src = "audio.mp3";
-            mediaEl.controls = true;
-            mediaEl.autoplay = true;
-            mediaEl.style.marginTop = "12px";
-            mediaEl.style.width = "800px";
-            
-            wrapper.appendChild(blackBox);
-            wrapper.appendChild(mediaEl);
-            mediaContainer.appendChild(wrapper);
-        }
-        
-        mediaEl.playbackRate = baseSpeed;
-        mediaEl.addEventListener("loadedmetadata", () => {
-            mediaEl.currentTime = Math.max(0, time - 0.5);
-        });
-        
-        updateSpeedDisplay(baseSpeed);
-    }
-
-    function updateProgressBar() {
-      const percent = ((currentTrial - 1) / totalTrials) * 100;
-      progressBar.style.width = percent + "%";
-    }
-
-    function updateSpeedDisplay(speed) {
-      speed = Math.max(1.0, Math.min(speed, 4.0));
-      if (mediaEl) mediaEl.playbackRate = speed;
-      speedSlider.value = speed;
-      speedDisplay.textContent = speed.toFixed(2) + "x";
-      lastSpeed = speed;
-    }
-
-    document.addEventListener("keydown", (e) => {
-        if (trialScreen.classList.contains("active")) {
-            if (e.key === "ArrowRight") increaseSpeed();
-            if (e.key === "ArrowLeft") decreaseSpeed();
-        }
-    });
-
-    function addGlow(button, colorClass) {
-        button.classList.add(colorClass);
-        setTimeout(() => {
-            button.classList.remove(colorClass);
-        }, 200);
-        }
-
-    function increaseSpeed() { updateSpeedDisplay(lastSpeed + 0.1);
-        addGlow(increaseBtn, "glow-green");
-     }
-    function decreaseSpeed() { updateSpeedDisplay(lastSpeed - 0.1);
-        addGlow(decreaseBtn, "glow-red");
-     }
-
-    resetBtn.onclick = () => updateSpeedDisplay(1.0);
-    increaseBtn.onclick = increaseSpeed;
-    decreaseBtn.onclick = decreaseSpeed;
-
-    function sendTrialData(trialNumber, speed, time) {
-      const participantId = localStorage.getItem('participantId');
-      const payload = {
-        data: [{ participantId, trial: trialNumber, playbackSpeed: speed, videoTime: time }]
-      };
-
-      if (isTestMode) {
-        console.log("[TEST MODE] Trial Data:", payload);
-        return;
-      }
-
-      fetch("https://sheetdb.io/api/v1/tar154b79cjl1", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(response => console.log("Data sent to SheetDB"))
-      .catch(error => console.error("Error sending data:", error));
-    }
-
-    nextBtn.onclick = () => {
-        lastSpeed = mediaEl.playbackRate;
-        lastTime = mediaEl.currentTime;
-        currentTrial++;
-        if (currentTrial > totalTrials) {
-            introScreen.classList.remove("active");
-            exampleScreen.classList.remove("active");
-            trialScreen.classList.remove("active");
-            progressBarContainer.style.display = "none";
-        if (mediaEl) {
-            mediaEl.pause();
-        }
-            thankYouMessage.classList.add("active");
-            thankYouMessage.scrollIntoView({ behavior: "smooth" });
-        } else {
-            loadTrial();
-        }
-    };
-  </script>
+    thankYouMessage.classList.add("active");
+    thankYouMessage.scrollIntoView({ behavior: "smooth" });
+  } else {
+    loadTrial();
+  }
+};
+</script>
 </body>
 </html>
