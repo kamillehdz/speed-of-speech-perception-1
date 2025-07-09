@@ -139,7 +139,7 @@
       margin-top: 25px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 20px;
       font-size: 1.1rem;
     }
 
@@ -157,11 +157,11 @@
     }
 
     #decreaseSpeedBtn {
-      margin-left: 20 px;
+      margin-left:10px;
     }
 
      #increaseSpeedBtn {
-      margin-left: 20 px;
+      margin-left:270px;
     }
 
     button {
@@ -186,6 +186,87 @@
         box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.847);
     }
 
+  .controls {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.controls-title {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.controls-row {
+  display: flex;
+  gap: 80px; 
+  align-items: flex-start;
+}
+
+.button-group-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.button-label {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.arrow-cluster-wrapper {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.arrow-cluster-wrapper.shift-right {
+  margin-left: 230px;
+}
+
+.key-caption {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.arrow-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.arrow-row {
+  display: flex;
+  justify-content: center;
+}
+
+.arrow-key {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: white;
+}
+
+.arrow-key.highlighted {
+  background: #cce5d0; /* highlight */
+  border-color: #333;
+}
   </style>
 </head>
 
@@ -232,7 +313,7 @@
     <p class="fade-line">You will always hear the talker's voice.</p>
     <p class="fade-line">Sometimes you will see the face of the talker and sometimes you will see only a blank screen, but the task is the same in both cases.</p>
     <p class="fade-line">
-    <a href="#" class="fancy-link" onclick="goToExample()">[[Click here to see an example.]]</a>
+    <a href="#" class="fancy-link" onclick="goToExample()">Click here to see an example.</a>
     </p>
     </section>
     
@@ -249,11 +330,54 @@
 
   <section id="trialScreen">
     <div id="mediaContainer"></div>
+    
     <div class="controls">
-      <label>Adjust Playback Speed:</label>
-      <button id="decreaseSpeedBtn">-</button>
-      <button id="increaseSpeedBtn">+</button>
+  <label class="controls-title">Adjust Playback Speed:</label>
+  
+  <div class="controls-row">
+    <!-- Slow down group -->
+    <div class="button-group-vertical">
+      <div class="button-row">
+        <span class="button-label">Click here to slow down</span>
+        <button id="decreaseSpeedBtn">-</button>
+      </div>
+      <div class="arrow-cluster-wrapper">
+        <div class="arrow-cluster">
+          <div class="arrow-row">
+            <div class="arrow-key">↑</div>
+          </div>
+          <div class="arrow-row">
+            <div class="arrow-key highlighted">←</div>
+            <div class="arrow-key">↓</div>
+            <div class="arrow-key">→</div>
+          </div>
+        </div>
+        <div class="key-caption">or hit the left key on your keyboard</div>
+      </div>
     </div>
+
+    <!-- Speed up group -->
+    <div class="button-group-vertical">
+      <div class="button-row">
+        <button id="increaseSpeedBtn">+</button>
+        <span class="button-label">Click here to speed up</span>
+      </div>
+      <div class="arrow-cluster-wrapper shift-right">
+        <div class="arrow-cluster">
+          <div class="arrow-row">
+            <div class="arrow-key">↑</div>
+          </div>
+          <div class="arrow-row">
+            <div class="arrow-key">←</div>
+            <div class="arrow-key">↓</div>
+            <div class="arrow-key highlighted">→</div>
+          </div>
+        </div>
+        <div class="key-caption">or hit the right key on your keyboard</div>
+      </div>
+    </div>
+  </div>
+</div>
     <button id="nextBtn" style="margin-top:40px;">Click once you reach your max speed</button>
   </section>
 
@@ -352,6 +476,12 @@ function loadTrial() {
     mediaEl.currentTime = Math.max(0, time - 0.5);
   });
 
+}
+
+function updateSpeed(speed) {
+  speed = Math.max(1.0, Math.min(speed, 4.0));
+  if (mediaEl) mediaEl.playbackRate = speed;
+  lastSpeed = speed;
 }
 
 function updateProgressBar() {
