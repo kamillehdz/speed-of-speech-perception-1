@@ -156,26 +156,12 @@
         padding-bottom: 200px; 
     }
 
-    input[type='range'] {
-      -webkit-appearance: none;
-      width: 250px;
-      height: 6px;
-      background: #ddd;
-      border-radius: 5px;
-      outline: none;
+    #decreaseSpeedBtn {
+      margin-left: 20 px;
     }
 
-    input[type='range']::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #01366f;
-    }
-
-    input[type='range']:disabled {
-        opacity: 0.5;
+     #increaseSpeedBtn {
+      margin-left: 20 px;
     }
 
     button {
@@ -200,7 +186,6 @@
         box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.847);
     }
 
-    #speedDisplay { min-width: 50px; }
   </style>
 </head>
 
@@ -247,7 +232,7 @@
     <p class="fade-line">You will always hear the talker's voice.</p>
     <p class="fade-line">Sometimes you will see the face of the talker and sometimes you will see only a blank screen, but the task is the same in both cases.</p>
     <p class="fade-line">
-    <a href="#" class="fancy-link" onclick="goToExample()">Click here to see an example.</a>
+    <a href="#" class="fancy-link" onclick="goToExample()">[[Click here to see an example.]]</a>
     </p>
     </section>
     
@@ -265,12 +250,9 @@
   <section id="trialScreen">
     <div id="mediaContainer"></div>
     <div class="controls">
-      <label>Playback Speed:</label>
+      <label>Adjust Playback Speed:</label>
       <button id="decreaseSpeedBtn">-</button>
-      <input id="speedSlider" type="range" min="1.0" max="4.0" step="0.1" value="1.0" disabled>
       <button id="increaseSpeedBtn">+</button>
-      <span id="speedDisplay">1.00x</span>
-      <button id="resetBtn">Reset</button>
     </div>
     <button id="nextBtn" style="margin-top:40px;">Click once you reach your max speed</button>
   </section>
@@ -303,9 +285,6 @@ const progressBarContainer = document.getElementById("progressBarContainer");
 const progressBar = document.getElementById("progressBar");
 const mediaContainer = document.getElementById("mediaContainer");
 const nextBtn = document.getElementById("nextBtn");
-const speedSlider = document.getElementById("speedSlider");
-const speedDisplay = document.getElementById("speedDisplay");
-const resetBtn = document.getElementById("resetBtn");
 const increaseBtn = document.getElementById("increaseSpeedBtn");
 const decreaseBtn = document.getElementById("decreaseSpeedBtn");
 
@@ -373,20 +352,11 @@ function loadTrial() {
     mediaEl.currentTime = Math.max(0, time - 0.5);
   });
 
-  updateSpeedDisplay(baseSpeed);
 }
 
 function updateProgressBar() {
   const percent = ((currentTrial - 1) / totalTrials) * 100;
   progressBar.style.width = percent + "%";
-}
-
-function updateSpeedDisplay(speed) {
-  speed = Math.max(1.0, Math.min(speed, 4.0));
-  if (mediaEl) mediaEl.playbackRate = speed;
-  speedSlider.value = speed;
-  speedDisplay.textContent = speed.toFixed(2) + "x";
-  lastSpeed = speed;
 }
 
 document.addEventListener("keydown", (e) => {
@@ -404,15 +374,14 @@ function addGlow(button, colorClass) {
 }
 
 function increaseSpeed() {
-  updateSpeedDisplay(lastSpeed + 0.1);
+  updateSpeed(lastSpeed + 0.05);
   addGlow(increaseBtn, "glow-green");
 }
 function decreaseSpeed() {
-  updateSpeedDisplay(lastSpeed - 0.1);
+  updateSpeed(lastSpeed - 0.05);
   addGlow(decreaseBtn, "glow-red");
 }
 
-resetBtn.onclick = () => updateSpeedDisplay(1.0);
 increaseBtn.onclick = increaseSpeed;
 decreaseBtn.onclick = decreaseSpeed;
 
