@@ -542,18 +542,29 @@ function sendTrialData(trialNumber, speed, time) {
 }
 
 nextBtn.onclick = () => {
-  lastSpeed = mediaEl.playbackRate;
-  lastTime = mediaEl.currentTime;
+  if (mediaEl) {
+    lastSpeed = mediaEl.playbackRate;
+    lastTime = mediaEl.currentTime.toFixed(2);
+  } else {
+    lastSpeed = 1.0;
+    lastTime = 0;
+  }
+  console.log("Sending trial data:", {
+    trialNumber: currentTrial,
+    speed: lastSpeed,
+    time: lastTime
+  });
   sendTrialData(currentTrial, lastSpeed, lastTime);
   currentTrial++;
   if (currentTrial > totalTrials) {
-    introScreen.classList.remove("active");
-    exampleScreen.classList.remove("active");
-    trialScreen.classList.remove("active");
-    progressBarContainer.style.display = "none";
     if (mediaEl) {
       mediaEl.pause();
     }
+    trialScreen.classList.remove("active");
+    exampleScreen.classList.remove("active");
+    introScreen.classList.remove("active");
+    progressBarContainer.style.display = "none";
+
     thankYouMessage.classList.add("active");
     thankYouMessage.scrollIntoView({ behavior: "smooth" });
   } else {
