@@ -387,6 +387,10 @@
   </section>
 
   <script>
+    if (!localStorage.getItem('participantId')) {
+      localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
+    }
+
   function goToTrial() {
     exampleScreen.classList.remove("active");
   trialScreen.classList.add("active");
@@ -517,6 +521,7 @@ decreaseBtn.onclick = decreaseSpeed;
 
 function sendTrialData(trialNumber, speed, time) {
   const participantId = localStorage.getItem('participantId');
+  console.log("participantId is:", participantId);
   const payload = {
     data: [{ 
       participantId, 
