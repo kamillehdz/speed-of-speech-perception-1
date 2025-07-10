@@ -520,7 +520,7 @@ function sendTrialData(trialNumber, speed, time) {
   const payload = {
     data: [{ 
       participantId, 
-      condition: window.currentcondition, 
+      condition: window.currentCondition, 
       trial: trialNumber, 
       playbackSpeed: speed, 
       videoTime: time 
@@ -544,6 +544,7 @@ function sendTrialData(trialNumber, speed, time) {
 nextBtn.onclick = () => {
   lastSpeed = mediaEl.playbackRate;
   lastTime = mediaEl.currentTime;
+  sendTrialData(currentTrial, lastSpeed, lastTime);
   currentTrial++;
   if (currentTrial > totalTrials) {
     introScreen.classList.remove("active");
