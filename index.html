@@ -549,18 +549,26 @@ function sendTrialData(trialNumber, speed, time) {
 nextBtn.onclick = () => {
   if (mediaEl) {
     lastSpeed = mediaEl.playbackRate;
-    lastTime = mediaEl.currentTime.toFixed(2);
+    if (!isNaN(mediaEl.currentTime)) {
+      lastTime = mediaEl.currentTime.toFixed(2);
+    } else {
+      console.warn("Warning: mediaEl.currentTime is NaN, using 0");
+      lastTime = 0;
+    }
   } else {
     lastSpeed = 1.0;
     lastTime = 0;
   }
+
   console.log("Sending trial data:", {
     trialNumber: currentTrial,
     speed: lastSpeed,
     time: lastTime
   });
+
   sendTrialData(currentTrial, lastSpeed, lastTime);
   currentTrial++;
+  
   if (currentTrial > totalTrials) {
     if (mediaEl) {
       mediaEl.pause();
