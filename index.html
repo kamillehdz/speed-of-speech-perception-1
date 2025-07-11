@@ -392,7 +392,13 @@
     }
 
   function goToTrial() {
-    exampleScreen.classList.remove("active");
+  const exampleVideo = exampleScreen.querySelector("video");
+  if (exampleVideo && !exampleVideo.paused) {
+    exampleVideo.pause();
+    exampleVideo.currentTime = 0; 
+  }
+
+  exampleScreen.classList.remove("active");
   trialScreen.classList.add("active");
   progressBarContainer.style.display = "block";
   loadTrial();
