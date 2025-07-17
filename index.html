@@ -329,6 +329,7 @@
     </section>
 
   <section id="trialScreen">
+    <div id="videoLabel" style="text-align: center; font-size: 24px; font-weight: bold; margin: 16px 0;"></div>
     <div id="mediaContainer"></div>
     
     <div class="controls">
@@ -465,6 +466,16 @@ function loadTrial() {
   }
 
   updateProgressBar();
+  const videoLabel = document.getElementById("videoLabel");
+  if (videoLabel) {
+    if (currentTrial <= 16) {
+      videoLabel.textContent = "Video 1";
+    } else if (currentTrial <= 32) {
+      videoLabel.textContent = "Video 2";
+    } else {
+      videoLabel.textContent = "Video 3";
+    }
+  }
   mediaContainer.innerHTML = "";
 
   const baseSpeed = currentTrial === 1 ? 1.0 : Math.max(1.0, lastSpeed * 0.75);
@@ -515,9 +526,12 @@ if (currentTrial <= 16) {
 
   mediaEl.playbackRate = baseSpeed;
   mediaEl.addEventListener("loadedmetadata", () => {
-    mediaEl.currentTime = Math.max(0, time - 0.5);
-  });
-}
+  if (currentTrial === 1 || currentTrial === 17 || currentTrial === 33) {
+    mediaEl.currentTime = 0; // start of new video set
+  } else {
+    mediaEl.currentTime = Math.max(0, time - 0.5); 
+  }
+});
 
 function updateSpeed(speed) {
   speed = Math.max(1.0, Math.min(speed, 4.0));
