@@ -145,7 +145,7 @@
 
     #exampleScreen video {
       border: 5px solid black;
-      border radius: 8px;
+      border-radius: 8px;
     }
 
     #trialScreen {
@@ -395,7 +395,7 @@
   const exampleVideo = exampleScreen.querySelector("video");
   if (exampleVideo && !exampleVideo.paused) {
     exampleVideo.pause();
-    exampleVideo.currentTime = 0; 
+    exampleVideo.currentTime = 0;
   }
 
   exampleScreen.classList.remove("active");
@@ -405,11 +405,11 @@
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-const totalTrials = 10;
+const totalTrials = 16;
 let currentTrial = 1;
 let lastSpeed = 1.0;
 let lastTime = 0;
-const isTestMode = false;
+const isTestMode = true;
 
 const introScreen = document.getElementById("introScreen");
 const exampleScreen = document.getElementById("exampleScreen");
@@ -555,6 +555,47 @@ function sendTrialData(trialNumber, speed, time) {
 nextBtn.onclick = () => {
   if (mediaEl) {
     lastSpeed = mediaEl.playbackRate;
+
+    if (mediaEl.paused) {
+      console.warn("Media was paused. Trying to play...");
+      mediaEl.play().catch(err => console.warn("Autoplay failed:", err));
+    }
+
+    let ct = mediaEl.currentTime;
+    if (isNaN(ct) || ct === 0) {
+      console.warn("currentTime is zero or NaN — using lastTime fallback.");
+      ct = lastTime || 0;
+    }
+
+    lastTime = parseFloat(ct).toFixed(2);
+  } else {
+    lastSpeed = 1.0;
+    lastTime = 0;
+  }
+
+  console.log("Sending trial data:", {
+    trialNumber: currentTrial,
+    speed: lastSpeed,
+    time: lastTime
+  });
+
+  sendTrialData(currentTrial, lastSpeed, lastTime);
+  currentTrial++;
+
+  if (currentTrial > totalTrials) {
+    if (mediaEl) mediaEl.pause();
+    trialScreen.classList.remove("active");
+    exampleScreen.classList.remove("active");
+    introScreen.classList.remove("active");
+    progressBarContainer.style.display = "none";
+    thankYouMessage.classList.add("active");
+    thankYouMessage.scrollIntoView({ behavior: "smooth" });
+  } else {
+    loadTrial();
+  }
+};
+  if (mediaEl) {
+    lastSpeed = mediaEl.playbackRate;
     if (!isNaN(mediaEl.currentTime)) {
       lastTime = mediaEl.currentTime.toFixed(2);
     } else {
@@ -588,8 +629,8 @@ nextBtn.onclick = () => {
     thankYouMessage.scrollIntoView({ behavior: "smooth" });
   } else {
     loadTrial();
-  }
-};
+  };
+
 </script>
 </body>
 </html>
