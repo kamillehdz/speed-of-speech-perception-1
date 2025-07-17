@@ -408,7 +408,7 @@ function goToTrial() {
 
   window.scrollTo({ top: 0, behavior: "instant" });
 
-const totalTrials = 16;
+const totalTrials = 48;
 let currentTrial = 1;
 let lastSpeed = 1.0;
 let lastTime = 0;
@@ -474,13 +474,13 @@ function loadTrial() {
   window.currentCondition = isVideo ? "AV" : "A";
 
   let fileNum;
-  if (currentTrial <= 16) {
-    fileNum = 4;
-  } else if (currentTrial <= 32) {
-    fileNum = 5;
-  } else {
-    fileNum = 7;
-  }
+if (currentTrial <= 16) {
+  fileNum = 4;
+} else if (currentTrial <= 32) {
+  fileNum = 5;
+} else {
+  fileNum = 7;
+}
 
   const videoFile = `videos/video${fileNum}.mp4`;
   const audioFile = `videos/audio${fileNum}.mp3`;
@@ -604,20 +604,29 @@ nextBtn.onclick = () => {
   });
 
   sendTrialData(currentTrial, lastSpeed, lastTime);
+
   currentTrial++;
-  
+
   if (currentTrial > totalTrials) {
     if (mediaEl) {
       mediaEl.pause();
     }
+
+    // Hide experiment screens
     trialScreen.classList.remove("active");
     exampleScreen.classList.remove("active");
     introScreen.classList.remove("active");
     progressBarContainer.style.display = "none";
 
+    // Show thank you message
     thankYouMessage.classList.add("active");
     thankYouMessage.scrollIntoView({ behavior: "smooth" });
   } else {
+    // If starting a new video block (trial 17 or 33), reset progress bar
+    if (currentTrial === 17 || currentTrial === 33) {
+      progressBar.style.width = "0%";
+    }
+
     loadTrial();
   }
 };
