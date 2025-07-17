@@ -145,7 +145,7 @@
 
     #exampleScreen video {
       border: 5px solid black;
-      border-radius: 8px;
+      border radius: 8px;
     }
 
     #trialScreen {
@@ -387,6 +387,13 @@
   </section>
 
   <script>
+
+    const videoSets = [
+  ["video1.mp4", "video2.mp4", ..., "video16.mp4"],
+  ["video17.mp4", "video18.mp4", ..., "video32.mp4"],
+  ["video33.mp4", "video34.mp4", ..., "video48.mp4"]
+];
+
     if (!localStorage.getItem('participantId')) {
       localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
     }
@@ -395,7 +402,7 @@
   const exampleVideo = exampleScreen.querySelector("video");
   if (exampleVideo && !exampleVideo.paused) {
     exampleVideo.pause();
-    exampleVideo.currentTime = 0;
+    exampleVideo.currentTime = 0; 
   }
 
   exampleScreen.classList.remove("active");
@@ -405,7 +412,7 @@
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-const totalTrials = 16;
+const totalTrials = 10;
 let currentTrial = 1;
 let lastSpeed = 1.0;
 let lastTime = 0;
@@ -439,9 +446,11 @@ function goToExample() {
 
 let mediaEl;
 
+
 function loadTrial() {
   updateProgressBar();
   mediaContainer.innerHTML = "";
+
   const baseSpeed = currentTrial === 1 ? 1.0 : Math.max(1.0, lastSpeed * 0.75);
   const time = currentTrial === 1 ? 0 : lastTime;
 
@@ -454,9 +463,19 @@ function loadTrial() {
 
   window.currentCondition = isVideo ? "AV" : "A";
 
+  let fileIndex = 4;
+  if (currentTrial > 32) {
+    fileIndex = 7;
+  } else if (currentTrial > 16) {
+    fileIndex = 5;
+  }
+
+  const videoFile = `videos/video${fileIndex}.mp4`;
+  const audioFile = `videos/audio${fileIndex}.mp3`;
+
   if (isVideo) {
     mediaEl = document.createElement("video");
-    mediaEl.src = "video.mp4";
+    mediaEl.src = videoFile;
     mediaEl.controls = true;
     mediaEl.autoplay = true;
     mediaContainer.appendChild(mediaEl);
@@ -470,7 +489,7 @@ function loadTrial() {
     blackBox.className = "blank-box";
 
     mediaEl = document.createElement("audio");
-    mediaEl.src = "audio.mp3";
+    mediaEl.src = audioFile;
     mediaEl.controls = true;
     mediaEl.autoplay = true;
     mediaEl.style.marginTop = "12px";
@@ -485,7 +504,6 @@ function loadTrial() {
   mediaEl.addEventListener("loadedmetadata", () => {
     mediaEl.currentTime = Math.max(0, time - 0.5);
   });
-
 }
 
 function updateSpeed(speed) {
@@ -555,47 +573,6 @@ function sendTrialData(trialNumber, speed, time) {
 nextBtn.onclick = () => {
   if (mediaEl) {
     lastSpeed = mediaEl.playbackRate;
-
-    if (mediaEl.paused) {
-      console.warn("Media was paused. Trying to play...");
-      mediaEl.play().catch(err => console.warn("Autoplay failed:", err));
-    }
-
-    let ct = mediaEl.currentTime;
-    if (isNaN(ct) || ct === 0) {
-      console.warn("currentTime is zero or NaN — using lastTime fallback.");
-      ct = lastTime || 0;
-    }
-
-    lastTime = parseFloat(ct).toFixed(2);
-  } else {
-    lastSpeed = 1.0;
-    lastTime = 0;
-  }
-
-  console.log("Sending trial data:", {
-    trialNumber: currentTrial,
-    speed: lastSpeed,
-    time: lastTime
-  });
-
-  sendTrialData(currentTrial, lastSpeed, lastTime);
-  currentTrial++;
-
-  if (currentTrial > totalTrials) {
-    if (mediaEl) mediaEl.pause();
-    trialScreen.classList.remove("active");
-    exampleScreen.classList.remove("active");
-    introScreen.classList.remove("active");
-    progressBarContainer.style.display = "none";
-    thankYouMessage.classList.add("active");
-    thankYouMessage.scrollIntoView({ behavior: "smooth" });
-  } else {
-    loadTrial();
-  }
-};
-  if (mediaEl) {
-    lastSpeed = mediaEl.playbackRate;
     if (!isNaN(mediaEl.currentTime)) {
       lastTime = mediaEl.currentTime.toFixed(2);
     } else {
@@ -629,8 +606,8 @@ nextBtn.onclick = () => {
     thankYouMessage.scrollIntoView({ behavior: "smooth" });
   } else {
     loadTrial();
-  };
-
+  }
+};
 </script>
 </body>
 </html>
