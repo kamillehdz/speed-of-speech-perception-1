@@ -145,7 +145,7 @@
 
     #exampleScreen video {
       border: 5px solid black;
-      border-radius: 8px;
+      border radius: 8px;
     }
 
     #trialScreen {
@@ -391,24 +391,21 @@
       localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
     }
 
-  
-function goToTrial() {
+  function goToTrial() {
   const exampleVideo = exampleScreen.querySelector("video");
   if (exampleVideo && !exampleVideo.paused) {
     exampleVideo.pause();
-    exampleVideo.currentTime = 0;
+    exampleVideo.currentTime = 0; 
   }
 
-  introScreen.classList.remove("active");
   exampleScreen.classList.remove("active");
   trialScreen.classList.add("active");
   progressBarContainer.style.display = "block";
   loadTrial();
+  window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-  window.scrollTo({ top: 0, behavior: "instant" });
-
-const totalTrials = 48;
+const totalTrials = 16;
 let currentTrial = 1;
 let lastSpeed = 1.0;
 let lastTime = 0;
@@ -431,66 +428,37 @@ localStorage.setItem('visitCount', visitCount);
 const startsWithVideo = visitCount % 2 === 1;
 
 function goToExample() {
-  document.getElementById("introScreen").classList.remove("active");
-  document.getElementById("exampleScreen").classList.add("active");
+  introScreen.classList.remove("active");
+  exampleScreen.classList.add("active");
+  exampleScreen.scrollIntoView({ behavior: "smooth" });
 
-  const exampleVideo = document.querySelector("#exampleScreen video");
-  if (exampleVideo) {
-    exampleVideo.play();
-  }
+  const exampleVideo = exampleScreen.querySelector("video");
+  exampleVideo.muted = false; 
+  exampleVideo.play().catch(e => console.log("Autoplay failed:", e));
 }
 
 let mediaEl;
 
 function loadTrial() {
-  // Determine which video set (1, 2, or 3)
-  let setNum;
-  if (currentTrial <= 16) {
-    setNum = 1;
-  } else if (currentTrial <= 32) {
-    setNum = 2;
-  } else {
-    setNum = 3;
-  }
-
-  // Update label
-  const videoLabel = document.getElementById("videoLabel");
-  if (videoLabel) {
-    videoLabel.textContent = `Video ${setNum}`;
-  }
-
-  // Reset progress bar at start of each video set
-  if (currentTrial === 1 || currentTrial === 17 || currentTrial === 33) {
-    progressBar.style.width = "0%";
-  }
-
   updateProgressBar();
   mediaContainer.innerHTML = "";
-
   const baseSpeed = currentTrial === 1 ? 1.0 : Math.max(1.0, lastSpeed * 0.75);
   const time = currentTrial === 1 ? 0 : lastTime;
 
-  const isVideo = startsWithVideo ? currentTrial % 2 === 1 : currentTrial % 2 === 0;
+  let isVideo;
+  if (startsWithVideo) {
+    isVideo = currentTrial % 2 === 1;
+  } else {
+    isVideo = currentTrial % 2 === 0;
+  }
+
   window.currentCondition = isVideo ? "AV" : "A";
-
-  let fileNum;
-if (currentTrial <= 16) {
-  fileNum = 4;
-} else if (currentTrial <= 32) {
-  fileNum = 5;
-} else {
-  fileNum = 7;
-}
-
-  const videoFile = `videos/video${fileNum}.mp4`;
-  const audioFile = `videos/audio${fileNum}.mp3`;
 
   if (isVideo) {
     mediaEl = document.createElement("video");
-    mediaEl.src = videoFile;
+    mediaEl.src = "video.mp4";
     mediaEl.controls = true;
     mediaEl.autoplay = true;
-    mediaEl.style.maxWidth = "100%";
     mediaContainer.appendChild(mediaEl);
   } else {
     const wrapper = document.createElement("div");
@@ -502,7 +470,7 @@ if (currentTrial <= 16) {
     blackBox.className = "blank-box";
 
     mediaEl = document.createElement("audio");
-    mediaEl.src = audioFile;
+    mediaEl.src = "audio.mp3";
     mediaEl.controls = true;
     mediaEl.autoplay = true;
     mediaEl.style.marginTop = "12px";
@@ -517,6 +485,7 @@ if (currentTrial <= 16) {
   mediaEl.addEventListener("loadedmetadata", () => {
     mediaEl.currentTime = Math.max(0, time - 0.5);
   });
+
 }
 
 function updateSpeed(speed) {
@@ -604,29 +573,20 @@ nextBtn.onclick = () => {
   });
 
   sendTrialData(currentTrial, lastSpeed, lastTime);
-
   currentTrial++;
-
+  
   if (currentTrial > totalTrials) {
     if (mediaEl) {
       mediaEl.pause();
     }
-
-    // Hide experiment screens
     trialScreen.classList.remove("active");
     exampleScreen.classList.remove("active");
     introScreen.classList.remove("active");
     progressBarContainer.style.display = "none";
 
-    // Show thank you message
     thankYouMessage.classList.add("active");
     thankYouMessage.scrollIntoView({ behavior: "smooth" });
   } else {
-    // If starting a new video block (trial 17 or 33), reset progress bar
-    if (currentTrial === 17 || currentTrial === 33) {
-      progressBar.style.width = "0%";
-    }
-
     loadTrial();
   }
 };
