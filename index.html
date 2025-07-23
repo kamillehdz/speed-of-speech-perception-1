@@ -402,6 +402,15 @@
       localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
     }
 
+
+    function stopAllVideos() {
+      const videos = document.querySelectorAll("video");
+      videos.forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+      });
+    }
+
   function goToTrial() {
   const exampleVideo = exampleScreen.querySelector("video");
   if (exampleVideo && !exampleVideo.paused) {
@@ -448,14 +457,6 @@ function goToExample() {
   exampleVideo.play().catch(e => console.log("Autoplay failed:", e));
 }
 
-function stopAllVideos() {
-  const videos = document.querySelectorAll("video");
-  videos.forEach(video => {
-    video.pause();
-    video.currentTime = 0;
-  });
-}
-
 function goToVolumeCheck() {
   stopAllVideos();
   document.getElementById("introScreen").classList.remove("active");
@@ -469,6 +470,7 @@ document.getElementById("volumeNextBtn").onclick = () => {
 };
 
 document.getElementById("exampleNextBtn").onclick = () => {
+  stopAllVideos();
   exampleScreen.classList.remove("active");
   trialScreen.classList.add("active");
   currentTrial = 1;
