@@ -319,7 +319,7 @@
 
     <section id="volumeCheckScreen" class="screen">
         <h2>Adjust Your Volume</h2>
-        <video id="volumeCheckVideo" width="640" controls autoplay>
+        <video id="volumeCheckVideo" width="640" autoplay playsinline>
             <source src="volumecheck.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
@@ -331,7 +331,7 @@
     <section id="exampleScreen">
         <h1>Example</h1>
         <p>This is an example of what you will see.</p>
-        <video controls autoplay>
+        <video id="exampleVideo" autoplay playsinline>
             <source src="example_video.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
@@ -448,12 +448,22 @@ function goToExample() {
   exampleVideo.play().catch(e => console.log("Autoplay failed:", e));
 }
 
+function stopAllVideos() {
+  const videos = document.querySelectorAll("video");
+  videos.forEach(video => {
+    video.pause();
+    video.currentTime = 0;
+  });
+}
+
 function goToVolumeCheck() {
+  stopAllVideos();
   document.getElementById("introScreen").classList.remove("active");
   document.getElementById("volumeCheckScreen").classList.add("active");
 }
 
 document.getElementById("volumeNextBtn").onclick = () => {
+  stopAllVideos();
   volumeCheckScreen.classList.remove("active");
   exampleScreen.classList.add("active");
 };
@@ -629,6 +639,13 @@ nextBtn.onclick = () => {
     loadTrial();
   }
 };
+
+window.addEventListener("load", () => {
+    if (volumeCheckScreen.classList.contains("active")) {
+      volumeCheckVideo.play().catch(err => console.warn("Autoplay blocked", err));
+    }
+  });
+
 </script>
 </body>
 </html>
