@@ -319,22 +319,24 @@
 
     <section id="volumeCheckScreen" class="screen">
         <h2>Adjust Your Volume</h2>
-        <p>Please turn up your volume until you hear someone talking at a reasonable level.</p>
-        <video id="volumeCheckVideo" width="800" controls>
-            <source src="videos/volumecheck.mp4" type="video/mp4">
+        <video id="volumeCheckVideo" width="640" controls autoplay>
+            <source src="volumecheck.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
+        <p>Please turn up your volume until you hear someone talking at a reasonable level.</p>
         <button id="volumeNextBtn">Click here to see an example.</button>
     </section>
 
     
-    <section id="exampleScreen" class="screen">
-        <h2>Example Trial</h2>
-        <video id="exampleVideo" width="800" controls>
-            <source src="videos/example.mp4" type="video/mp4">
+    <section id="exampleScreen">
+        <h1>Example</h1>
+        <p>This is an example of what you will see.</p>
+        <video controls autoplay>
+            <source src="example_video.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <button id="nextBtn">Click here to begin the experiment.</button>
+        <p>After watching the instructions, click the <strong>Next</strong> button below.</p>
+        <button id="exampleNextBtn" class="next-btn">Click here to start the experiment.</button>
     </section>
 
   <section id="trialScreen">
@@ -414,14 +416,6 @@
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-function stopAllVideos() {
-  const videos = document.querySelectorAll("video");
-  videos.forEach(video => {
-    video.pause();
-    video.currentTime = 0;
-  });
-}
-
 const totalTrials = 16;
 let currentTrial = 1;
 let lastSpeed = 1.0;
@@ -459,35 +453,16 @@ function goToVolumeCheck() {
   document.getElementById("volumeCheckScreen").classList.add("active");
 }
 
-volumeNextBtn.onclick = () => {
-  stopAllVideos();
-  const volumeVid = document.getElementById("volumeCheckVideo");
-  if (volumeVid) {
-    volumeVid.pause();
-    volumeVid.currentTime = 0;
-  }
-
+document.getElementById("volumeNextBtn").onclick = () => {
   volumeCheckScreen.classList.remove("active");
   exampleScreen.classList.add("active");
-
-  const exampleVid = document.getElementById("exampleVideo");
-  if (exampleVid) {
-    exampleVid.currentTime = 0;
-    exampleVid.play().catch(err => console.error("Autoplay with sound failed", err));
-  }
 };
 
 document.getElementById("exampleNextBtn").onclick = () => {
-  stopAllVideos();
-    const exampleVid = document.getElementById("exampleVideo");
-    if (exampleVid) {
-        exampleVid.pause();
-        exampleVid.currentTime = 0;
-    }
-    exampleScreen.classList.remove("active");
-    trialScreen.classList.add("active");
-    currentTrial = 1;
-    loadTrial();
+  exampleScreen.classList.remove("active");
+  trialScreen.classList.add("active");
+  currentTrial = 1;
+  loadTrial();
 };
 
 function startTrials() {
