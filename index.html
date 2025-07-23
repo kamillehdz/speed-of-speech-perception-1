@@ -461,12 +461,14 @@ function goToVolumeCheck() {
   stopAllVideos();
   document.getElementById("introScreen").classList.remove("active");
   document.getElementById("volumeCheckScreen").classList.add("active");
-}
+  volumeCheckVideo.play();
+};
 
 document.getElementById("volumeNextBtn").onclick = () => {
   stopAllVideos();
   volumeCheckScreen.classList.remove("active");
   exampleScreen.classList.add("active");
+  exampleVideo.play();
 };
 
 document.getElementById("exampleNextBtn").onclick = () => {
