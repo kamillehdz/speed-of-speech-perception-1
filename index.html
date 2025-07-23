@@ -313,19 +313,30 @@
     <p class="fade-line">You will always hear the talker's voice.</p>
     <p class="fade-line">Sometimes you will see the face of the talker and sometimes you will see only a blank screen, but the task is the same in both cases.</p>
     <p class="fade-line">
-    <a href="#" class="fancy-link" onclick="goToExample()">Click here to see an example.</a>
+    <a href="#" class="fancy-link" onclick="goToVolumeCheck()">Next.</a>
     </p>
     </section>
+
+    <section id="volumeCheckScreen" class="screen">
+        <h2>Adjust Your Volume</h2>
+        <video id="volumeCheckVideo" width="640" controls autoplay>
+            <source src="volumecheck.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <p>Please turn up your volume until you hear someone talking at a reasonable level.</p>
+        <button id="volumeNextBtn">Click here to see an example.</button>
+    </section>
+
     
     <section id="exampleScreen">
         <h1>Example</h1>
         <p>This is an example of what you will see.</p>
-        <video controls>
+        <video controls autoplay>
             <source src="example_video.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <p>When ready, click below to start the actual trial.</p>
-        <button onclick="goToTrial()">Start the Actual Trial</button>
+        <p>After watching the instructions, click the <strong>Next</strong> button below.</p>
+        <button id="exampleNextBtn" class="next-btn">Click here to start the experiment.</button>
     </section>
 
   <section id="trialScreen">
@@ -435,6 +446,34 @@ function goToExample() {
   const exampleVideo = exampleScreen.querySelector("video");
   exampleVideo.muted = false; 
   exampleVideo.play().catch(e => console.log("Autoplay failed:", e));
+}
+
+function goToVolumeCheck() {
+  document.getElementById("introScreen").classList.remove("active");
+  document.getElementById("volumeCheckScreen").classList.add("active");
+}
+
+document.getElementById("volumeNextBtn").onclick = () => {
+  volumeCheckScreen.classList.remove("active");
+  exampleScreen.classList.add("active");
+};
+
+document.getElementById("exampleNextBtn").onclick = () => {
+  exampleScreen.classList.remove("active");
+  trialScreen.classList.add("active");
+  currentTrial = 1;
+  loadTrial();
+};
+
+function startTrials() {
+  exampleScreen.classList.remove("active");
+  trialScreen.classList.add("active");
+  loadTrial();
+}
+
+function goToSpeedAdjust() {
+  document.getElementById("volumeCheckScreen").classList.remove("active");
+  document.getElementById("exampleScreen").classList.add("active");
 }
 
 let mediaEl;
