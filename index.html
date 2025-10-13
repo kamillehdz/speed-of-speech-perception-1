@@ -67,185 +67,219 @@
       cursor: pointer;
     }
     button:hover {background-color: #c9dff8; color: black;}
+
+    .loopProgressContainer {
+      width: 80%;
+      height: 10px;
+      background: #ddd;
+      margin: 10px auto;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    
+    .loopProgressBar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.2s linear;
+    }
   </style>
 </head>
 
-<script>
-  window.volumeCheck = function () {
-    document.getElementById('introScreen').classList.remove('active');
-    document.getElementById('volumeCheckScreen').classList.add('active');
-    const a = document.getElementById('volumeCheckAudio');
-    if (a) a.play().catch(()=>{}); // start the volume check audio
-  };
-
-  window.exampleVideo = function () {
-    document.getElementById('volumeCheckScreen').classList.remove('active');
-    document.getElementById('exampleVideoScreen').classList.add('active');
-  };
-</script>
-
-<script>
-function startExperiment() {
-  document.getElementById('introScreen').classList.remove('active');
-  document.getElementById('volumeCheckScreen').classList.remove('active');
-  document.getElementById('exampleVideoScreen').classList.remove('active');
-  trialScreen.classList.add('active');
-  currentIndex = 0;
-  loadVideo();
-}
-</script>
-
 <body>
-  <div id="progressBarContainer"><div id="progressBar"></div></div>
-
+<!-- INTRO PAGE -->
 <section id="introScreen" class="active">
   <h1>Welcome to the Experiment</h1>
   <p>This experiment will measure how you perceive repeated ambiguous speech.</p>
-  <p>When watching each video:</p>
   <p>Press <strong>D</strong> if you hear “farewell” and <strong>K</strong> if you hear “welfare.”  
-     Each time your perception switches, press the appropriate key again.</p>
-  <button onclick="volumeCheck()">Click to proceed to the next page</button>
+  Each time your perception switches, press the appropriate key again.</p>
+  <button onclick="showSection('volumeCheckScreen')">Click to proceed to the next page</button>
 </section>
 
+<!-- VOLUME CHECK -->
 <section id="volumeCheckScreen">
   <h2>Volume Check</h2>
   <p>Please ensure your volume is at a comfortable level.</p>
   <audio id="volumeCheckAudio" controls>
-    <source src="volume_check.mp3" type="video/mp4">
-    Your browser does not support the audio element.
+    <source src="volume_check.mp3" type="audio/mp3">
   </audio>
-  <div style="margin-top:20px;">
-    <button onclick="exampleVideo()">Click to proceed to the next page</button>
-  </div>
+  <button onclick="showSection('exampleVideoScreen')">Click to proceed to the next page</button>
 </section>
 
-  <section id="exampleVideoScreen">
-    <h2>Example Video</h2>
-    <p>Here is an example video to familiarize you with the task.</p>
-    <video id="exampleVideo" autoplay playsinline controls>
-      <source src="example_video.mp4" type="video/mp4">
-      Your browser does not support the video element.
-    </video>
-    <div style="margin-top:20px;">
-      <button onclick="startExperiment()">Continue to Experiment</button>
-    </div>
-  </section>
-
-<section id="trialScreen">
-  <h2 id="trialInstruction"></h2>
-  <video id="stimulusVideo" autoplay playsinline controls></video>
-  <source src="video1.mp4" type="video/mp4">
-  <p>Press <strong>D</strong> if you hear “farewell” and <strong>K</strong> if you hear “welfare.”  
-  <div style="margin-top:20px;">
-    <button id="nextBtn">Next Video</button>
-  </div>
+<!-- EXAMPLE VIDEO -->
+<section id="exampleVideoScreen">
+  <h2>Example Video</h2>
+  <video autoplay playsinline controls>
+    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/example_video.mp4" type="video/mp4">
+  </video>
+  <button onclick="showSection('trial1')">Continue to Experiment</button>
 </section>
 
+<!-- TRIAL 1 — Audio: Farewell only -->
+<section id="trial1">
+  <h2>Trial 1</h2>
+  <video id="vid1" autoplay playsinline controls>
+    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video1.mp4" type="video/mp4">
+  </video>
+  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress1"></div></div>
+  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
+  <button onclick="showSection('trial2')">Continue to Experiment</button>
+</section>
+
+<!-- TRIAL 2 — Farewell AV -->
+<section id="trial2">
+  <h2>Trial 2</h2>
+  <video id="vid2" autoplay playsinline controls>
+    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video2.mp4" type="video/mp4">
+  </video>
+  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress2"></div></div>
+  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
+  <button onclick="showSection('trial3')">Continue to Experiment</button>
+</section>
+
+<!-- TRIAL 3 — Farewell + Wave -->
+<section id="trial3">
+  <h2>Trial 3</h2>
+  <video id="vid3" autoplay playsinline controls>
+    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video3.mp4" type="video/mp4">
+  </video>
+  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress3"></div></div>
+  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
+  <button onclick="showSection('trial4')">Continue to Experiment</button>
+</section>
+
+<!-- TRIAL 4 — Welfare + Wave -->
+<section id="trial4">
+  <h2>Trial 4</h2>
+  <video id="vid4" autoplay playsinline controls>
+    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video4.mp4" type="video/mp4">
+  </video>
+  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress4"></div></div>
+  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
+  <button onclick="showSection('trial5')">Continue to Experiment</button>
+</section>
+
+<!-- TRIAL 5 — Farewell + Nod -->
+<section id="trial5">
+  <h2>Trial 5</h2>
+  <video id="vid5" autoplay playsinline controls>
+    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video5.mp4" type="video/mp4">
+  </video>
+  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress5"></div></div>
+  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
+  <button onclick="showSection('trial6')">Continue to Experiment</button>
+</section>
+
+<!-- TRIAL 6 — Welfare + Nod -->
+<section id="trial6">
+  <h2>Trial 5</h2>
+  <video id="vid6" autoplay playsinline controls>
+    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video6.mp4" type="video/mp4">
+  </video>
+  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress5"></div></div>
+  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
+  <button onclick="showSection('trial6')">Finish Experiment</button>
+</section>
+
+<!-- THANK YOU PAGE -->
 <section id="thankYouMessage">
   <h2>Thank you for participating!</h2>
-  <p>You may now close this tab.</p>
+  <p>Your responses have been recorded. You may now close this tab.</p>
 </section>
 
 <script>
-  const videos = [
-    {file: 'video1.mp4', condition: 'A only'},
-    {file: 'video2.mp4', condition: 'Farewell AV: no gesture'},
-    {file: 'video3.mp4', condition: 'Fare AV: hand gesture'},
-    {file: 'video4.mp4', condition: 'Well AV: hand gesture'},
-    {file: 'video5.mp4', condition: 'Fare AV: head gesture'},
-    {file: 'video6.mp4', condition: 'Well AV: head gesture'},
-    {file: 'example_video.mp4', condition: 'Example video'}
-  ];
+const TEST_MODE = true;
+const API_URL = "https://sheetdb.io/api/v1/tar154b79cjl1";
+const MAX_LOOPS = 100;
+let loopCount = 0;
 
-  let currentIndex = 0;
-  const mediaEl = document.getElementById('stimulusVideo');
-  const progressBar = document.getElementById('progressBar');
-  const trialScreen = document.getElementById('trialScreen');
-  const thankYouMessage = document.getElementById('thankYouMessage');
-  let responseData = [];
-  let lastKeyPressTime = null;
+// show a section
+function showSection(id) {
+  // Stop all currently playing videos
+  document.querySelectorAll('video').forEach(v => {
+    v.pause();
+    v.currentTime = 0;
+  });
 
-  function updateProgressBar() {
-    progressBar.style.width = (currentIndex / videos.length) * 100 + "%";
-  }
+  // Hide all sections, then show the new one
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
 
-  function loadVideo() {
-    updateProgressBar();
-    const trialNumber = currentIndex + 1;
-    document.getElementById('trialInstruction').textContent =
-      `Video ${trialNumber} of ${videos.length} — Press D if “farewell”, K if “welfare”`;
-    mediaEl.src = videos[currentIndex].file;
-    mediaEl.currentTime = 0;
-    mediaEl.play();
-  }
+// handle looping for each video
+function autoLoopVideo(videoId, nextSectionId, progressId) {
+  const vid = document.getElementById(videoId);
+  const bar = document.getElementById(progressId);
+  loopCount = 0;
+  vid.play().catch(() => console.log("Autoplay requires user interaction"));
 
-  loadVideo();
+  vid.onended = () => {
+    loopCount++;
+    const progress = (loopCount / MAX_LOOPS) * 100;
+    bar.style.width = progress + "%";
 
-  document.getElementById('nextBtn').onclick = () => {
-    mediaEl.pause();
-    currentIndex++;
-    if (currentIndex < videos.length) {
-      loadVideo();
+    if (loopCount < MAX_LOOPS) {
+      vid.currentTime = 0;
+      vid.play();
     } else {
-      trialScreen.classList.remove('active');
-      document.getElementById('progressBarContainer').style.display = 'none';
-      thankYouMessage.classList.add('active');
-      thankYouMessage.scrollIntoView({ behavior: "smooth" });
-      console.log('All responses:', responseData);
+      showSection(nextSectionId);
     }
   };
+}
 
-//Toggle test mode here
-const TEST_MODE = true;  
-const API_URL = "https://sheetdb.io/api/v1/tar154b79cjl1";
+// Run automatically when a section is shown
+const trialOrder = [
+  { id: 'trial1', next: 'trial2', vid: 'vid1', bar: 'progress1' },
+  { id: 'trial2', next: 'trial3', vid: 'vid2', bar: 'progress2' },
+  { id: 'trial3', next: 'trial4', vid: 'vid3', bar: 'progress3' },
+  { id: 'trial4', next: 'trial5', vid: 'vid4', bar: 'progress4' },
+  { id: 'trial5', next: 'trial6', vid: 'vid5', bar: 'progress5' },
+  { id: 'trial6', next: 'thankYouMessage', vid: 'vid6', bar: 'progress6' }
+];
 
+const observer = new MutationObserver(() => {
+  const active = document.querySelector('section.active');
+  const trial = trialOrder.find(t => t.id === active?.id);
+  if (trial) autoLoopVideo(trial.vid, trial.next, trial.bar);
+});
+observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+// record responses
 document.addEventListener('keydown', (e) => {
-  if (!trialScreen.classList.contains('active')) return;
-  if (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'k') {
-    const now = new Date();
+  const activeVideo = document.querySelector('section.active video');
+  if (!activeVideo) return;
+  if (!['d','k'].includes(e.key.toLowerCase())) return;
 
-    // Convert to EST
-    const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const now = new Date();
+  const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const formatted = `${estTime.getFullYear()}-${String(estTime.getMonth()+1).padStart(2,'0')}-${String(estTime.getDate()).padStart(2,'0')} ` +
+                    `${String(estTime.getHours()).padStart(2,'0')}:${String(estTime.getMinutes()).padStart(2,'0')}:${String(estTime.getSeconds()).padStart(2,'0')}.${estTime.getMilliseconds()}`;
 
-    const formattedTime = `${estTime.getFullYear()}-${String(estTime.getMonth()+1).padStart(2,'0')}-${String(estTime.getDate()).padStart(2,'0')} ` +
-                          `${String(estTime.getHours()).padStart(2,'0')}:${String(estTime.getMinutes()).padStart(2,'0')}:${String(estTime.getSeconds()).padStart(2,'0')}.${estTime.getMilliseconds()}`;
+  const entry = {
+    participantId: localStorage.getItem('participantId') || 'P' + Math.floor(Math.random() * 1e6),
+    sectionId: document.querySelector('section.active').id,
+    videoFile: activeVideo.querySelector('source').src,
+    keyPressed: e.key.toLowerCase(),
+    loopNumber: loopCount + 1,
+    timeInStimulus: activeVideo.currentTime.toFixed(2),
+    timestampEST: formatted
+  };
 
-    const rt = lastKeyPressTime ? (now - lastKeyPressTime) / 1000 : null;
-    lastKeyPressTime = now;
-
-    const entry = {
-      participantId: localStorage.getItem('participantId') || 'P' + Math.floor(Math.random() * 1e6),
-      trialNumber: currentIndex + 1,
-      videoFile: videos[currentIndex].file,
-      condition: videos[currentIndex].condition,
-      keyPressed: e.key.toLowerCase(),
-      timeInStimulus: mediaEl.currentTime.toFixed(2),
-      reactionTimeSinceLastPress: rt,
-      timestampEST: formattedTime
-    };
-
-    responseData.push(entry);
-    console.log('Recorded response:', entry);
-
-    //Send to SheetDB only if not in test mode
-    if (!TEST_MODE) {
-      fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: entry })
-      })
-      .then(res => res.json())
-      .then(data => console.log("Sent to SheetDB:", data))
-      .catch(err => console.error("Error sending to SheetDB:", err));
-    } else {
-      console.log("IN TEST MODE — not sent to SheetDB. Data would be:", entry);
-    }
+  console.log("Recorded:", entry);
+  if (!TEST_MODE) {
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: entry })
+    });
   }
 });
 
-  if (!localStorage.getItem('participantId')) {
-    localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
-  }
+// participant ID
+if (!localStorage.getItem('participantId')) {
+  localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
+}
 </script>
 </body>
 </html>
