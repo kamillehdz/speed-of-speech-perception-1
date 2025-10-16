@@ -83,6 +83,34 @@
       background: var(--accent);
       transition: width 0.2s linear;
     }
+
+    .key-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.key-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background-color: #eee;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.key-box.active {
+  background-color: #4caf50;
+  color: white;
+  transform: scale(1.1);
+}
   </style>
 </head>
 
@@ -118,6 +146,10 @@
 <!-- TRIAL 1 — Audio: Farewell only -->
 <section id="trial1">
   <h2>Trial 1</h2>
+  <div class="key-indicator">
+    <div id="keyD1" class="key-box">D</div>
+    <div id="keyK1" class="key-box">K</div>
+  </div>
   <video id="vid1" autoplay playsinline controls>
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video1.mp4" type="video/mp4">
   </video>
@@ -129,6 +161,10 @@
 <!-- TRIAL 2 — Farewell AV -->
 <section id="trial2">
   <h2>Trial 2</h2>
+  <div class="key-indicator">
+    <div id="keyD2" class="key-box">D</div>
+    <div id="keyK2" class="key-box">K</div>
+  </div>
   <video id="vid2" autoplay playsinline controls>
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video2.mp4" type="video/mp4">
   </video>
@@ -140,6 +176,10 @@
 <!-- TRIAL 3 — Farewell + Wave -->
 <section id="trial3">
   <h2>Trial 3</h2>
+  <div class="key-indicator">
+    <div id="keyD3" class="key-box">D</div>
+    <div id="keyK3" class="key-box">K</div>
+  </div>
   <video id="vid3" autoplay playsinline controls>
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video3.mp4" type="video/mp4">
   </video>
@@ -151,6 +191,10 @@
 <!-- TRIAL 4 — Welfare + Wave -->
 <section id="trial4">
   <h2>Trial 4</h2>
+  <div class="key-indicator">
+    <div id="keyD4" class="key-box">D</div>
+    <div id="keyK4" class="key-box">K</div>
+  </div>
   <video id="vid4" autoplay playsinline controls>
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video4.mp4" type="video/mp4">
   </video>
@@ -162,6 +206,10 @@
 <!-- TRIAL 5 — Farewell + Nod -->
 <section id="trial5">
   <h2>Trial 5</h2>
+  <div class="key-indicator">
+    <div id="keyD5" class="key-box">D</div>
+    <div id="keyK5" class="key-box">K</div>
+  </div>
   <video id="vid5" autoplay playsinline controls>
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video5.mp4" type="video/mp4">
   </video>
@@ -172,7 +220,11 @@
 
 <!-- TRIAL 6 — Welfare + Nod -->
 <section id="trial6">
-  <h2>Trial 5</h2>
+  <h2>Trial 6</h2>
+  <div class="key-indicator">
+    <div id="keyD6" class="key-box">D</div>
+    <div id="keyK6" class="key-box">K</div>
+  </div>
   <video id="vid6" autoplay playsinline controls>
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video6.mp4" type="video/mp4">
   </video>
@@ -191,9 +243,79 @@
 const TEST_MODE = true;
 const API_URL = "https://sheetdb.io/api/v1/tar154b79cjl1";
 const MAX_LOOPS = 100;
-let loopCount = 0;
+const trialLoopCounts = {}; // track each video’s loop count separately
 
-// show a section
+function autoLoopVideo(videoId, nextSectionId, progressId) {
+  const vid = document.getElementById(videoId);
+  const bar = document.getElementById(progressId);
+
+  // Only initialize once per trial (prevents reset)
+  if (!(videoId in trialLoopCounts)) {
+    trialLoopCounts[videoId] = 0;
+  }
+
+  // remove any previous listener to avoid double-counting
+  vid.onended = null;
+
+  vid.play().catch(() => console.log("Autoplay requires user interaction"));
+
+  vid.onended = () => {
+    trialLoopCounts[videoId]++;
+    const progress = (trialLoopCounts[videoId] / MAX_LOOPS) * 100;
+    bar.style.width = progress + "%";
+
+    if (trialLoopCounts[videoId] < MAX_LOOPS) {
+      vid.currentTime = 0;
+      vid.play();
+    } else {
+      console.log(`${videoId} completed ${MAX_LOOPS} loops`);
+      showSection(nextSectionId);
+    }
+  };
+}
+
+// Key listener
+document.addEventListener('keydown', (e) => {
+  if (!['d', 'k'].includes(e.key.toLowerCase())) return;
+
+  const activeSection = document.querySelector('section.active');
+  const activeVideo = activeSection ? activeSection.querySelector('video') : null;
+  if (!activeVideo) return;
+
+  // Visual key feedback
+  if (e.key.toLowerCase() === 'd') flashKey('keyD');
+  if (e.key.toLowerCase() === 'k') flashKey('keyK');
+
+  const currentLoop = trialLoopCounts[activeVideo.id] || 0;
+
+  // Record response (does NOT affect progress)
+  const now = new Date();
+  const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const formatted = `${estTime.getFullYear()}-${String(estTime.getMonth()+1).padStart(2,'0')}-${String(estTime.getDate()).padStart(2,'0')} ` +
+                    `${String(estTime.getHours()).padStart(2,'0')}:${String(estTime.getMinutes()).padStart(2,'0')}:${String(estTime.getSeconds()).padStart(2,'0')}.${estTime.getMilliseconds()}`;
+
+  const entry = {
+    participantId: localStorage.getItem('participantId') || 'P' + Math.floor(Math.random() * 1e6),
+    sectionId: activeSection.id,
+    videoFile: activeVideo.querySelector('source').src,
+    keyPressed: e.key.toLowerCase(),
+    loopNumber: currentLoop + 1,
+    timeInStimulus: activeVideo.currentTime.toFixed(2),
+    timestampEST: formatted
+  };
+
+  console.log("Recorded:", entry);
+
+  if (!TEST_MODE) {
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: entry })
+    });
+  }
+});
+
+// Section switching
 function showSection(id) {
   // Stop all currently playing videos
   document.querySelectorAll('video').forEach(v => {
@@ -207,28 +329,7 @@ function showSection(id) {
   window.scrollTo(0, 0);
 }
 
-// handle looping for each video
-function autoLoopVideo(videoId, nextSectionId, progressId) {
-  const vid = document.getElementById(videoId);
-  const bar = document.getElementById(progressId);
-  loopCount = 0;
-  vid.play().catch(() => console.log("Autoplay requires user interaction"));
-
-  vid.onended = () => {
-    loopCount++;
-    const progress = (loopCount / MAX_LOOPS) * 100;
-    bar.style.width = progress + "%";
-
-    if (loopCount < MAX_LOOPS) {
-      vid.currentTime = 0;
-      vid.play();
-    } else {
-      showSection(nextSectionId);
-    }
-  };
-}
-
-// Run automatically when a section is shown
+// Auto-run loop per section
 const trialOrder = [
   { id: 'trial1', next: 'trial2', vid: 'vid1', bar: 'progress1' },
   { id: 'trial2', next: 'trial3', vid: 'vid2', bar: 'progress2' },
@@ -245,40 +346,24 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
 
-// record responses
-document.addEventListener('keydown', (e) => {
-  const activeVideo = document.querySelector('section.active video');
-  if (!activeVideo) return;
-  if (!['d','k'].includes(e.key.toLowerCase())) return;
-
-  const now = new Date();
-  const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const formatted = `${estTime.getFullYear()}-${String(estTime.getMonth()+1).padStart(2,'0')}-${String(estTime.getDate()).padStart(2,'0')} ` +
-                    `${String(estTime.getHours()).padStart(2,'0')}:${String(estTime.getMinutes()).padStart(2,'0')}:${String(estTime.getSeconds()).padStart(2,'0')}.${estTime.getMilliseconds()}`;
-
-  const entry = {
-    participantId: localStorage.getItem('participantId') || 'P' + Math.floor(Math.random() * 1e6),
-    sectionId: document.querySelector('section.active').id,
-    videoFile: activeVideo.querySelector('source').src,
-    keyPressed: e.key.toLowerCase(),
-    loopNumber: loopCount + 1,
-    timeInStimulus: activeVideo.currentTime.toFixed(2),
-    timestampEST: formatted
-  };
-
-  console.log("Recorded:", entry);
-  if (!TEST_MODE) {
-    fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: entry })
-    });
-  }
-});
-
-// participant ID
+// Assign participant ID
 if (!localStorage.getItem('participantId')) {
   localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
+}
+
+function flashKey(baseKey) {
+  const activeSection = document.querySelector('section.active');
+  if (!activeSection) return;
+  
+  // Find which trial number (e.g., trial1, trial2, etc.)
+  const sectionId = activeSection.id.replace('trial', '');
+  const keyId = baseKey + sectionId;
+  
+  const key = document.getElementById(keyId);
+  if (!key) return;
+  
+  key.classList.add('active');
+  setTimeout(() => key.classList.remove('active'), 200);
 }
 </script>
 </body>
