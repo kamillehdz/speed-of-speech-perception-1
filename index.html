@@ -150,7 +150,7 @@
     <div id="keyD1" class="key-box">D</div>
     <div id="keyK1" class="key-box">K</div>
   </div>
-  <video id="vid1" autoplay playsinline controls>
+  <video id="vid1" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video1.mp4" type="video/mp4">
   </video>
   <div class="loopProgressContainer"><div class="loopProgressBar" id="progress1"></div></div>
@@ -165,7 +165,7 @@
     <div id="keyD2" class="key-box">D</div>
     <div id="keyK2" class="key-box">K</div>
   </div>
-  <video id="vid2" autoplay playsinline controls>
+  <video id="vid2" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video2.mp4" type="video/mp4">
   </video>
   <div class="loopProgressContainer"><div class="loopProgressBar" id="progress2"></div></div>
@@ -180,7 +180,7 @@
     <div id="keyD3" class="key-box">D</div>
     <div id="keyK3" class="key-box">K</div>
   </div>
-  <video id="vid3" autoplay playsinline controls>
+  <video id="vid3" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video3.mp4" type="video/mp4">
   </video>
   <div class="loopProgressContainer"><div class="loopProgressBar" id="progress3"></div></div>
@@ -195,7 +195,7 @@
     <div id="keyD4" class="key-box">D</div>
     <div id="keyK4" class="key-box">K</div>
   </div>
-  <video id="vid4" autoplay playsinline controls>
+  <video id="vid4" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video4.mp4" type="video/mp4">
   </video>
   <div class="loopProgressContainer"><div class="loopProgressBar" id="progress4"></div></div>
@@ -210,7 +210,7 @@
     <div id="keyD5" class="key-box">D</div>
     <div id="keyK5" class="key-box">K</div>
   </div>
-  <video id="vid5" autoplay playsinline controls>
+  <video id="vid5" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video5.mp4" type="video/mp4">
   </video>
   <div class="loopProgressContainer"><div class="loopProgressBar" id="progress5"></div></div>
@@ -225,7 +225,7 @@
     <div id="keyD6" class="key-box">D</div>
     <div id="keyK6" class="key-box">K</div>
   </div>
-  <video id="vid6" autoplay playsinline controls>
+  <video id="vid6" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video6.mp4" type="video/mp4">
   </video>
   <div class="loopProgressContainer"><div class="loopProgressBar" id="progress5"></div></div>
@@ -240,23 +240,27 @@
 </section>
 
 <script>
-const TEST_MODE = false;
+const TEST_MODE = false; // set to false to log data live
 const API_URL = "https://sheetdb.io/api/v1/tar154b79cjl1";
 const MAX_LOOPS = 100;
-const trialLoopCounts = {}; // track each video’s loop count separately
+const trialLoopCounts = {};
 
+// Mapping each section to condition label for “trial” column
+const trialLabels = {
+  trial1: "Audio only (Farewell)",
+  trial2: "AV Farewell",
+  trial3: "Farewell + Wave",
+  trial4: "Welfare + Wave",
+  trial5: "Farewell + Nod",
+  trial6: "Welfare + Nod"
+};
+
+// -------- Video Looping --------
 function autoLoopVideo(videoId, nextSectionId, progressId) {
   const vid = document.getElementById(videoId);
   const bar = document.getElementById(progressId);
-
-  // Only initialize once per trial (prevents reset)
-  if (!(videoId in trialLoopCounts)) {
-    trialLoopCounts[videoId] = 0;
-  }
-
-  // remove any previous listener to avoid double-counting
+  if (!(videoId in trialLoopCounts)) trialLoopCounts[videoId] = 0;
   vid.onended = null;
-
   vid.play().catch(() => console.log("Autoplay requires user interaction"));
 
   vid.onended = () => {
@@ -274,34 +278,39 @@ function autoLoopVideo(videoId, nextSectionId, progressId) {
   };
 }
 
-// Key listener
-document.addEventListener('keydown', (e) => {
-  if (!['d', 'k'].includes(e.key.toLowerCase())) return;
+// -------- Key Press Handling --------
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+  if (!["d", "k"].includes(key)) return;
 
-  const activeSection = document.querySelector('section.active');
-  const activeVideo = activeSection ? activeSection.querySelector('video') : null;
+  const activeSection = document.querySelector("section.active");
+  const activeVideo = activeSection ? activeSection.querySelector("video") : null;
   if (!activeVideo) return;
 
-  // Visual key feedback
-  if (e.key.toLowerCase() === 'd') flashKey('keyD');
-  if (e.key.toLowerCase() === 'k') flashKey('keyK');
+  // Visual feedback
+  const trialNum = activeSection.id.replace("trial", "");
+  flashKey(`key${key.toUpperCase()}${trialNum}`);
 
+  // Determine current trial info
+  const sectionId = activeSection.id;
+  const trialLabel = trialLabels[sectionId] || "Unknown condition";
+  const videoTime = activeVideo.currentTime.toFixed(2);
   const currentLoop = trialLoopCounts[activeVideo.id] || 0;
 
-  // Record response (does NOT affect progress)
+  // Timestamp
   const now = new Date();
   const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const formatted = `${estTime.getFullYear()}-${String(estTime.getMonth()+1).padStart(2,'0')}-${String(estTime.getDate()).padStart(2,'0')} ` +
-                    `${String(estTime.getHours()).padStart(2,'0')}:${String(estTime.getMinutes()).padStart(2,'0')}:${String(estTime.getSeconds()).padStart(2,'0')}.${estTime.getMilliseconds()}`;
+  const formattedTime = `${estTime.toISOString()}`;
 
+  // Prepare data row
   const entry = {
-    participantId: localStorage.getItem('participantId') || 'P' + Math.floor(Math.random() * 1e6),
-    sectionId: activeSection.id,
-    videoFile: activeVideo.querySelector('source').src,
-    keyPressed: e.key.toLowerCase(),
+    participantId: localStorage.getItem("participantId") || "P" + Math.floor(Math.random() * 1e6),
+    sectionId: sectionId,
+    trial: trialLabel,
+    keyPressed: key,
+    videoTime: videoTime,
     loopNumber: currentLoop + 1,
-    timeInStimulus: activeVideo.currentTime.toFixed(2),
-    timestampEST: formatted
+    timestampEST: formattedTime
   };
 
   console.log("Recorded:", entry);
@@ -311,59 +320,49 @@ document.addEventListener('keydown', (e) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ data: entry })
-    });
+    }).catch(err => console.error("Logging error:", err));
   }
 });
 
-// Section switching
+// -------- Section Switching --------
 function showSection(id) {
-  // Stop all currently playing videos
-  document.querySelectorAll('video').forEach(v => {
+  document.querySelectorAll("video").forEach(v => {
     v.pause();
     v.currentTime = 0;
   });
-
-  // Hide all sections, then show the new one
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
   window.scrollTo(0, 0);
 }
 
-// Auto-run loop per section
+// -------- Mutation Observer (start looping when section visible) --------
 const trialOrder = [
-  { id: 'trial1', next: 'trial2', vid: 'vid1', bar: 'progress1' },
-  { id: 'trial2', next: 'trial3', vid: 'vid2', bar: 'progress2' },
-  { id: 'trial3', next: 'trial4', vid: 'vid3', bar: 'progress3' },
-  { id: 'trial4', next: 'trial5', vid: 'vid4', bar: 'progress4' },
-  { id: 'trial5', next: 'trial6', vid: 'vid5', bar: 'progress5' },
-  { id: 'trial6', next: 'thankYouMessage', vid: 'vid6', bar: 'progress6' }
+  { id: "trial1", next: "trial2", vid: "vid1", bar: "progress1" },
+  { id: "trial2", next: "trial3", vid: "vid2", bar: "progress2" },
+  { id: "trial3", next: "trial4", vid: "vid3", bar: "progress3" },
+  { id: "trial4", next: "trial5", vid: "vid4", bar: "progress4" },
+  { id: "trial5", next: "trial6", vid: "vid5", bar: "progress5" },
+  { id: "trial6", next: "thankYouMessage", vid: "vid6", bar: "progress6" }
 ];
 
 const observer = new MutationObserver(() => {
-  const active = document.querySelector('section.active');
+  const active = document.querySelector("section.active");
   const trial = trialOrder.find(t => t.id === active?.id);
   if (trial) autoLoopVideo(trial.vid, trial.next, trial.bar);
 });
-observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
 
-// Assign participant ID
-if (!localStorage.getItem('participantId')) {
-  localStorage.setItem('participantId', 'P' + Math.floor(Math.random() * 1000000));
+// -------- Participant ID --------
+if (!localStorage.getItem("participantId")) {
+  localStorage.setItem("participantId", crypto.randomUUID());
 }
 
-function flashKey(baseKey) {
-  const activeSection = document.querySelector('section.active');
-  if (!activeSection) return;
-  
-  // Find which trial number (e.g., trial1, trial2, etc.)
-  const sectionId = activeSection.id.replace('trial', '');
-  const keyId = baseKey + sectionId;
-  
-  const key = document.getElementById(keyId);
+// -------- Flash Keys --------
+function flashKey(id) {
+  const key = document.getElementById(id);
   if (!key) return;
-  
-  key.classList.add('active');
-  setTimeout(() => key.classList.remove('active'), 200);
+  key.classList.add("active");
+  setTimeout(() => key.classList.remove("active"), 200);
 }
 </script>
 </body>
