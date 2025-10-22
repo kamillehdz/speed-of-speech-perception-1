@@ -294,7 +294,7 @@ document.addEventListener("keydown", (e) => {
   // Determine current trial info
   const sectionId = activeSection.id;
   const trialLabel = trialLabels[sectionId] || "Unknown condition";
-  const videoTime = activeVideo.currentTime.toFixed(2);
+  const videoTime = activeVideo.currentTime.toFixed(2).padEnd(5,'0');
   const currentLoop = trialLoopCounts[activeVideo.id] || 0;
 
   // Timestamp
