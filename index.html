@@ -22,22 +22,6 @@
       height: 100vh;
       overflow: auto;
     }
-    #progressBarContainer {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        width: 200px;
-        height: 20px;
-        background: #ddd;
-        border-radius: 10px;
-        overflow: hidden;
-        display: block;
-    }
-    #progressBar {
-        height: 100%;
-        width: 0%;
-        background: var(--accent);
-    }
     section {
       text-align: center;
       max-width: 800px;
@@ -76,7 +60,6 @@
       border-radius: 5px;
       overflow: hidden;
     }
-    
     .loopProgressBar {
       height: 100%;
       width: 0%;
@@ -85,32 +68,30 @@
     }
 
     .key-indicator {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 10px;
-}
-
-.key-box {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  background-color: #eee;
-  color: #333;
-  font-size: 1.5rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  transition: background-color 0.2s, transform 0.1s;
-}
-
-.key-box.active {
-  background-color: #4caf50;
-  color: white;
-  transform: scale(1.1);
-}
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+    .key-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      background-color: #eee;
+      color: #333;
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .key-box.active {
+      background-color: #4caf50;
+      color: white;
+      transform: scale(1.1);
+    }
   </style>
 </head>
 
@@ -121,16 +102,33 @@
   <p>This experiment will measure how you perceive repeated ambiguous speech.</p>
   <p>Press <strong>D</strong> if you hear “farewell” and <strong>K</strong> if you hear “welfare.”  
   Each time your perception switches, press the appropriate key again.</p>
-  <button onclick="showSection('volumeCheckScreen')">Click to proceed to the next page</button>
+  <button onclick="showSection('idEntryScreen')">Click to proceed to the next page</button>
+</section>
+
+<!-- ID ENTRY PAGE -->
+<section id="idEntryScreen">
+  <h2>Participant ID</h2>
+  <p>Please enter your Penn Participant ID exactly as it appears in SONA.</p>
+  <input 
+    id="participantIdInput"
+    type="text"
+    placeholder="Enter Participant ID"
+    style="padding:10px; font-size:1.1rem; width:250px; border-radius:6px; border:1px solid #ccc; text-align:center;"
+  />
+  <br><br>
+  <button onclick="storeIDandContinue()">Continue</button>
+  <p id="idError" style="color:red; display:none; margin-top:10px;">
+    Please enter your ID before continuing.
+  </p>
 </section>
 
 <!-- VOLUME CHECK -->
 <section id="volumeCheckScreen">
   <h2>Volume Check</h2>
   <p>Please ensure your volume is at a comfortable level.</p>
-  <audio id="volumeCheckAudio" controls>
-    <source src="volume_check.mp3" type="audio/mp3">
-  </audio>
+  <video id="volumeCheckAudio" autoplay playsinline controls>
+      <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception-1/main/volumecheck.mp4" type="video/mp4">
+  </video>
   <button onclick="showSection('exampleVideoScreen')">Click to proceed to the next page</button>
 </section>
 
@@ -153,9 +151,11 @@
   <video id="vid1" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video1.mp4" type="video/mp4">
   </video>
-  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress1"></div></div>
+  <div class="loopProgressContainer">
+    <div class="loopProgressBar" id="progress1"></div>
+  </div>
   <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
-  <button onclick="showSection('trial2')">Continue to Experiment</button>
+  <button onclick="nextTrial()">Continue to Experiment</button>
 </section>
 
 <!-- TRIAL 2 — Farewell AV -->
@@ -168,12 +168,14 @@
   <video id="vid2" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video2.mp4" type="video/mp4">
   </video>
-  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress2"></div></div>
+  <div class="loopProgressContainer">
+    <div class="loopProgressBar" id="progress2"></div>
+  </div>
   <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
-  <button onclick="showSection('trial3')">Continue to Experiment</button>
+  <button onclick="nextTrial()">Continue to Experiment</button>
 </section>
 
-<!-- TRIAL 3 — Farewell + Wave -->
+<!-- TRIAL 3 — Farewell + Hand Gesture -->
 <section id="trial3">
   <h2>Trial 3</h2>
   <div class="key-indicator">
@@ -183,12 +185,14 @@
   <video id="vid3" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video3.mp4" type="video/mp4">
   </video>
-  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress3"></div></div>
+  <div class="loopProgressContainer">
+    <div class="loopProgressBar" id="progress3"></div>
+  </div>
   <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
-  <button onclick="showSection('trial4')">Continue to Experiment</button>
+  <button onclick="nextTrial()">Continue to Experiment</button>
 </section>
 
-<!-- TRIAL 4 — Welfare + Wave -->
+<!-- TRIAL 4 — Welfare + Hand Gesture -->
 <section id="trial4">
   <h2>Trial 4</h2>
   <div class="key-indicator">
@@ -198,76 +202,171 @@
   <video id="vid4" autoplay playsinline preload="auto">
     <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video4.mp4" type="video/mp4">
   </video>
-  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress4"></div></div>
-  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
-  <button onclick="showSection('trial5')">Continue to Experiment</button>
-</section>
-
-<!-- TRIAL 5 — Farewell + Nod -->
-<section id="trial5">
-  <h2>Trial 5</h2>
-  <div class="key-indicator">
-    <div id="keyD5" class="key-box">D</div>
-    <div id="keyK5" class="key-box">K</div>
+  <div class="loopProgressContainer">
+    <div class="loopProgressBar" id="progress4"></div>
   </div>
-  <video id="vid5" autoplay playsinline preload="auto">
-    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video5.mp4" type="video/mp4">
-  </video>
-  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress5"></div></div>
   <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
-  <button onclick="showSection('trial6')">Continue to Experiment</button>
+  <button onclick="nextTrial()">Finish Experiment</button>
 </section>
 
-<!-- TRIAL 6 — Welfare + Nod -->
-<section id="trial6">
-  <h2>Trial 6</h2>
-  <div class="key-indicator">
-    <div id="keyD6" class="key-box">D</div>
-    <div id="keyK6" class="key-box">K</div>
-  </div>
-  <video id="vid6" autoplay playsinline preload="auto">
-    <source src="https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception/main/video6.mp4" type="video/mp4">
-  </video>
-  <div class="loopProgressContainer"><div class="loopProgressBar" id="progress5"></div></div>
-  <p>Press <strong>D</strong> for “farewell” and <strong>K</strong> for “welfare.”</p>
-  <button onclick="showSection('trial6')">Finish Experiment</button>
-</section>
-
-<!-- THANK YOU PAGE -->
+<!-- FINAL PAGE -->
 <section id="thankYouMessage">
-  <h2>Thank you for participating!</h2>
-  <p>Your responses have been recorded. You may now close this tab.</p>
+  <h2>Experiment Complete</h2>
+  <p>You have finished the experiment.</p>
+  <p>Please close this tab.</p>
 </section>
 
 <script>
-const TEST_MODE = false; // set to false to log data live
+// ---------- Subject + Version Assignment ----------
+function getSubjectNumber() {
+  let n = localStorage.getItem("subjectCounter");
+  if (!n) {
+    n = 1;
+  } else {
+    n = parseInt(n, 10) + 1;
+  }
+  localStorage.setItem("subjectCounter", n);
+  return n;
+}
+
+function getExperimentVersion(subjectNumber) {
+  // Odd -> Version1, Even -> Version2
+  return subjectNumber % 2 === 0 ? "Version2" : "Version1";
+}
+
+// ---------- Global Config ----------
+const TEST_MODE = true; // set to false to log data live
 const API_URL = "https://sheetdb.io/api/v1/tar154b79cjl1";
 const MAX_LOOPS = 100;
 const trialLoopCounts = {};
 
-// Mapping each section to condition label for “trial” column
 const trialLabels = {
-  trial1: "Audio only (Farewell)",
-  trial2: "AV Farewell",
-  trial3: "Farewell + Wave",
-  trial4: "Welfare + Wave",
+  trial1: "Audio only (A)",
+  trial2: "Farewell + Hand",
+  trial3: "Welfare + Hand",
+  trial4: "AV Farewell"
 };
 
-// -------- Video Looping --------
+// -------- Corrected Trial Orders --------
+
+// Version 1 (odd subjects):
+// 1. A only
+// 2. Farewell + Hand
+// 3. Welfare + Hand
+// 4. AV Farewell
+const trialOrder_Version1 = [
+  { id: "trial1", next: "trial2", vid: "vid1", bar: "progress1" }, 
+  { id: "trial2", next: "trial3", vid: "vid2", bar: "progress2" }, 
+  { id: "trial3", next: "trial4", vid: "vid3", bar: "progress3" }, 
+  { id: "trial4", next: "thankYouMessage", vid: "vid4", bar: "progress4" }
+];
+
+// Version 2 (even subjects):
+// 1. A only
+// 2. Welfare + Hand
+// 3. Farewell + Hand
+// 4. AV Farewell
+const trialOrder_Version2 = [
+  { id: "trial1", next: "trial3", vid: "vid1", bar: "progress1" }, 
+  { id: "trial3", next: "trial2", vid: "vid3", bar: "progress3" }, 
+  { id: "trial2", next: "trial4", vid: "vid2", bar: "progress2" }, 
+  { id: "trial4", next: "thankYouMessage", vid: "vid4", bar: "progress4" }
+];
+
+let trialOrder = [];
+
+// Mutation Observer to auto-start looping for the active trial
+const observer = new MutationObserver(() => {
+  const active = document.querySelector("section.active");
+  if (!active) return;
+  const trial = trialOrder.find(t => t.id === active.id);
+  if (trial) {
+    autoLoopVideo(trial.vid, trial.next, trial.bar);
+  }
+});
+
+// ---------- ID Handling + Version Assignment ----------
+function storeIDandContinue() {
+  const idValue = document.getElementById("participantIdInput").value.trim();
+
+  if (idValue === "") {
+    document.getElementById("idError").style.display = "block";
+    return;
+  }
+
+  // Store Penn ID
+  localStorage.setItem("pennId", idValue);
+
+  // Generate internal participant ID if needed
+  if (!localStorage.getItem("participantId")) {
+    localStorage.setItem("participantId", crypto.randomUUID());
+  }
+
+  // Subject number and version
+  const subjectNumber = getSubjectNumber();
+  localStorage.setItem("subjectNumber", subjectNumber);
+
+  const experimentVersion = getExperimentVersion(subjectNumber);
+  localStorage.setItem("experimentVersion", experimentVersion);
+  // --- SWAP VIDEO SOURCES FOR TRIAL 2 AND TRIAL 3 BASED ON VERSION ---
+  const vid2 = document.getElementById("vid2"); // Farewell + Hand
+  const vid3 = document.getElementById("vid3"); // Welfare + Hand
+  
+  if (experimentVersion === "Version1") {
+    // Version 1 (odd) → Farewell first, Welfare second
+    vid2.src = "https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception-1/main/video2.mp4"; // Farewell
+    vid3.src = "https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception-1/main/video3.mp4"; // Welfare
+    } else {
+    // Version 2 (even) → Welfare first, Farewell second
+    vid2.src = "https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception-1/main/video3.mp4"; // Welfare
+    vid3.src = "https://raw.githubusercontent.com/kamillehdz/speed-of-speech-perception-1/main/video2.mp4"; // Farewell
+    }
+
+// Force the browser to load the swapped videos immediately
+vid2.load();
+vid3.load();
+
+  // Set trial order
+  trialOrder = experimentVersion === "Version2"
+    ? trialOrder_Version2
+    : trialOrder_Version1;
+
+  console.log("Assigned version:", experimentVersion);
+  console.log("Trial order:", trialOrder.map(t => t.id).join(" → "));
+
+  // Start observer now that trialOrder is known
+  observer.observe(document.body, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class"]
+  });
+
+  // Move to volume check
+  showSection("volumeCheckScreen");
+}
+
+// ---------- Looping Videos ----------
 function autoLoopVideo(videoId, nextSectionId, progressId) {
   const vid = document.getElementById(videoId);
   const bar = document.getElementById(progressId);
-  if (!(videoId in trialLoopCounts)) trialLoopCounts[videoId] = 0;
+  if (!vid || !bar) return;
+
+  if (!(videoId in trialLoopCounts)) {
+    trialLoopCounts[videoId] = 0;
+  }
+
   vid.onended = null;
+
   vid.play().catch(() => console.log("Autoplay requires user interaction"));
 
   vid.onended = () => {
     trialLoopCounts[videoId]++;
-    const progress = (trialLoopCounts[videoId] / MAX_LOOPS) * 100;
-    bar.style.width = progress + "%";
+
+    bar.style.width =
+      (trialLoopCounts[videoId] / MAX_LOOPS) * 100 + "%";
 
     if (trialLoopCounts[videoId] < MAX_LOOPS) {
-      vid.currentTime = 0;
+      vid.currentTime = 0.0002; // tiny offset to reduce visible pause
       vid.play();
     } else {
       console.log(`${videoId} completed ${MAX_LOOPS} loops`);
@@ -276,7 +375,7 @@ function autoLoopVideo(videoId, nextSectionId, progressId) {
   };
 }
 
-// -------- Key Press Handling --------
+// ---------- Key Press Logging ----------
 document.addEventListener("keydown", (e) => {
   const key = e.key.toLowerCase();
   if (!["d", "k"].includes(key)) return;
@@ -285,24 +384,25 @@ document.addEventListener("keydown", (e) => {
   const activeVideo = activeSection ? activeSection.querySelector("video") : null;
   if (!activeVideo) return;
 
-  // Visual feedback
   const trialNum = activeSection.id.replace("trial", "");
   flashKey(`key${key.toUpperCase()}${trialNum}`);
 
-  // Determine current trial info
   const sectionId = activeSection.id;
   const trialLabel = trialLabels[sectionId] || "Unknown condition";
-  const videoTime = activeVideo.currentTime.toFixed(2).padEnd(5,'0');
+  const videoTime = activeVideo.currentTime.toFixed(2).padEnd(5, "0");
   const currentLoop = trialLoopCounts[activeVideo.id] || 0;
 
-  // Timestamp
   const now = new Date();
-  const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const formattedTime = `${estTime.toISOString()}`;
+  const estTime = new Date(
+    now.toLocaleString("en-US", { timeZone: "America/New_York" })
+  );
+  const formattedTime = estTime.toISOString();
 
-  // Prepare data row
   const entry = {
     participantId: localStorage.getItem("participantId") || "P" + Math.floor(Math.random() * 1e6),
+    pennId: localStorage.getItem("pennId") || "UNKNOWN",
+    subjectNumber: localStorage.getItem("subjectNumber") || "UNKNOWN",
+    experimentVersion: localStorage.getItem("experimentVersion") || "UNKNOWN",
     sectionId: sectionId,
     trial: trialLabel,
     keyPressed: key,
@@ -322,40 +422,36 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// -------- Section Switching --------
+// ---------- Navigation Helpers ----------
 function showSection(id) {
   document.querySelectorAll("video").forEach(v => {
     v.pause();
     v.currentTime = 0;
   });
   document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  window.scrollTo(0, 0);
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add("active");
+    window.scrollTo(0, 0);
+  }
 }
 
-// -------- Mutation Observer (start looping when section visible) --------
-const trialOrder = [
-  { id: "trial1", next: "trial2", vid: "vid1", bar: "progress1" },
-  { id: "trial2", next: "trial3", vid: "vid2", bar: "progress2" },
-  { id: "trial3", next: "trial4", vid: "vid3", bar: "progress3" },
-  { id: "trial4", next: "trial5", vid: "vid4", bar: "progress4" },
-  { id: "trial5", next: "trial6", vid: "vid5", bar: "progress5" },
-  { id: "trial6", next: "thankYouMessage", vid: "vid6", bar: "progress6" }
-];
-
-const observer = new MutationObserver(() => {
+function nextTrial() {
   const active = document.querySelector("section.active");
-  const trial = trialOrder.find(t => t.id === active?.id);
-  if (trial) autoLoopVideo(trial.vid, trial.next, trial.bar);
-});
-observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
+  if (!active) return;
+  const currentId = active.id;
+  const t = trialOrder.find(t => t.id === currentId);
+  if (t && t.next) {
+    showSection(t.next);
+  }
+}
 
-// -------- Participant ID --------
+// Ensure participantId exists (backup)
 if (!localStorage.getItem("participantId")) {
   localStorage.setItem("participantId", crypto.randomUUID());
 }
 
-// -------- Flash Keys --------
+// ---------- Visual Key Flash ----------
 function flashKey(id) {
   const key = document.getElementById(id);
   if (!key) return;
