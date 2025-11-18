@@ -217,6 +217,7 @@
 </section>
 
 <script>
+  let experimentStartTime = null;
 // ---------- Subject + Version Assignment ----------
 function getSubjectNumber() {
   let n = localStorage.getItem("subjectCounter");
@@ -235,7 +236,7 @@ function getExperimentVersion(subjectNumber) {
 }
 
 // ---------- Global Config ----------
-const TEST_MODE = false; // set to false to log data live
+const TEST_MODE = true; // set to false to log data live
 const API_URL = "https://sheetdb.io/api/v1/tar154b79cjl1";
 const MAX_LOOPS = 100;
 const trialLoopCounts = {};
@@ -389,7 +390,7 @@ document.addEventListener("keydown", (e) => {
 
   const sectionId = activeSection.id;
   const trialLabel = trialLabels[sectionId] || "Unknown condition";
-  const videoTime = activeVideo.currentTime.toFixed(2).padEnd(5, "0");
+  const globalTime = ((performance.now() - experimentStartTime) / 1000).toFixed(3);
   const currentLoop = trialLoopCounts[activeVideo.id] || 0;
 
   const now = new Date();
@@ -406,7 +407,7 @@ document.addEventListener("keydown", (e) => {
     sectionId: sectionId,
     trial: trialLabel,
     keyPressed: key,
-    videoTime: videoTime,
+    globalTime: globalTime,
     loopNumber: currentLoop + 1,
     timestampEST: formattedTime
   };
@@ -424,6 +425,11 @@ document.addEventListener("keydown", (e) => {
 
 // ---------- Navigation Helpers ----------
 function showSection(id) {
+  // Start global timer when entering trial1
+  if (id === "trial1" && experimentStartTime === null) {
+    experimentStartTime = performance.now();
+  }
+  
   document.querySelectorAll("video").forEach(v => {
     v.pause();
     v.currentTime = 0;
